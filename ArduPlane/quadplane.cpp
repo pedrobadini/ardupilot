@@ -1,5 +1,25 @@
 #include "Plane.h"
 
+#define ACTIVE_LOG_QAUTO_05 1
+
+#define AUX_UPDATE_TRANSITION AP::logger().WriteQ_Update_Transition(\
+    log_update_transition,\
+    log_transition_state0,\
+    log_transition_state1,\
+    log_transition_state2,\
+    log_have_airspeed,\
+    log_transition_low_airspeed_ms0,\
+    log_transition_low_airspeed_ms1,\
+    log_aspeed,\
+    log_climb_rate_cms,\
+    log_ahrs_get_gyro_z0,\
+    log_ahrs_get_gyro_z1,\
+    log_last_throttle0,\
+    log_last_throttle1,\
+    log_trans_time_ms,\
+    log_transition_scale,\
+    log_now)
+
 const AP_Param::GroupInfo QuadPlane::var_info[] = {
 
     // @Param: ENABLE
@@ -1609,13 +1629,33 @@ bool QuadPlane::assistance_safe()
  */
 void QuadPlane::update_transition(void)
 {
+#if ACTIVE_LOG_QAUTO_05
+    uint8_t log_transition_state0_= transition_state;
+    uint8_t log_transition_state1_ = 255;
+    uint8_t log_have_airspeed_ = 255;
+    uint32_t log_now = 4294967295;
+    uint32_t log_transition_low_airspeed_ms0_ = 4294967295;
+    uint32_t log_transition_low_airspeed_ms1_ = 4294967295;
+    float log_aspeed_ = -1;
+    float log_climb_rate_cms_ = -1;
+    float log_ahrs_get_gyro_z0_ = -1;
+    float log_ahrs_get_gyro_z1_ = -1;
+    float log_last_throttle0_ = -1;
+    float log_last_throttle1_ = -1;
+    float log_trans_time_ms_ = -1;
+    float log_transition_scale_ = -1;
+#endif
+    
+    plane.log_qupdate_transition = 0;
     if (plane.control_mode == &plane.mode_manual ||
         plane.control_mode == &plane.mode_acro ||
         plane.control_mode == &plane.mode_training) {
         // in manual modes quad motors are always off
+        plane.log_qupdate_transition = 1;
         if (!tilt.motors_active && !is_tailsitter()) {
             motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::SHUT_DOWN);
             motors->output();
+            plane.log_qupdate_transition = 2;
         }
         transition_state = TRANSITION_DONE;
         transition_start_ms = 0;
@@ -1628,47 +1668,62 @@ void QuadPlane::update_transition(void)
 
     if (!hal.util->get_soft_armed()) {
         // reset the failure timer if we haven't started transitioning
+        plane.log_qupdate_transition = 3;
         transition_start_ms = now;
     } else if ((transition_state != TRANSITION_DONE) &&
         (transition_start_ms != 0) &&
         (transition_failure > 0) &&
         ((now - transition_start_ms) > ((uint32_t)transition_failure * 1000))) {
+        plane.log_qupdate_transition = 4;
         gcs().send_text(MAV_SEVERITY_CRITICAL, "Transition failed, exceeded time limit");
         plane.set_mode(plane.mode_qland, ModeReason::VTOL_FAILED_TRANSITION);
     }
 
     float aspeed;
     bool have_airspeed = ahrs.airspeed_estimate(aspeed);
+#if ACTIVE_LOG_QAUTO_05
+    log_have_airspeed_ = have_airspeed;
+    log_aspeed_ = aspeed;
+#endif
 
     // tailsitters use angle wait, not airspeed wait
     if (is_tailsitter() && transition_state == TRANSITION_AIRSPEED_WAIT) {
         transition_state = TRANSITION_ANGLE_WAIT_FW;
+        plane.log_qupdate_transition = 5;
     }
-
+    
     /*
       see if we should provide some assistance
      */
-    if (assistance_safe() && (q_assist_state == Q_ASSIST_STATE_ENUM::Q_ASSIST_FORCE ||
-        (q_assist_state == Q_ASSIST_STATE_ENUM::Q_ASSIST_ENABLED && assistance_needed(aspeed, have_airspeed)))) {
+    if (have_airspeed &&
+        assistance_needed(aspeed, have_airspeed) &&
+        !is_tailsitter() &&
+        hal.util->get_soft_armed() &&
+        ((plane.auto_throttle_mode && !plane.throttle_suppressed) ||
+         plane.get_throttle_input()>0 ||
+         plane.is_flying())) {
+        
+         plane.log_qupdate_transition = 6;
         // the quad should provide some assistance to the plane
-        assisted_flight = true;
-        if (!is_tailsitter()) {
-            // update tansition state for vehicles using airspeed wait
-            if (transition_state != TRANSITION_AIRSPEED_WAIT) {
-                gcs().send_text(MAV_SEVERITY_INFO, "Transition started airspeed %.1f", (double)aspeed);
-            }
-            transition_state = TRANSITION_AIRSPEED_WAIT;
-            if (transition_start_ms == 0) {
-                transition_start_ms = now;
-            }
+        if (transition_state != TRANSITION_AIRSPEED_WAIT) {
+            gcs().send_text(MAV_SEVERITY_INFO, "Transition started airspeed %.1f", (double)aspeed);
+            plane.log_qupdate_transition = 7;
         }
+        transition_state = TRANSITION_AIRSPEED_WAIT;
+        if (transition_start_ms == 0) {
+            transition_start_ms = now;
+            plane.log_qupdate_transition = 8;
+        }
+        assisted_flight = true;
     } else {
         assisted_flight = false;
+        plane.log_qupdate_transition = 9;
     }
 
     if (is_tailsitter()) {
         if (transition_state == TRANSITION_ANGLE_WAIT_FW &&
             tailsitter_transition_fw_complete()) {
+                plane.log_qupdate_transition = 10;
             gcs().send_text(MAV_SEVERITY_INFO, "Transition FW done");
             transition_state = TRANSITION_DONE;
             transition_start_ms = 0;
@@ -1680,31 +1735,41 @@ void QuadPlane::update_transition(void)
     // unless we are waiting for airspeed to increase (in which case
     // the tilt will decrease rapidly)
     if (tiltrotor_fully_fwd() && transition_state != TRANSITION_AIRSPEED_WAIT) {
+        plane.log_qupdate_transition = 11;
         transition_state = TRANSITION_DONE;
         transition_start_ms = 0;
         transition_low_airspeed_ms = 0;
     }
     
     if (transition_state < TRANSITION_TIMER) {
+        plane.log_qupdate_transition = 12;
         // set a single loop pitch limit in TECS
         if (plane.ahrs.groundspeed() < 3) {
+            plane.log_qupdate_transition = 13;
             // until we have some ground speed limit to zero pitch
             plane.TECS_controller.set_pitch_max_limit(0);
         } else {
             plane.TECS_controller.set_pitch_max_limit(transition_pitch_max);
         }
     } else if (transition_state < TRANSITION_DONE) {
+        plane.log_qupdate_transition = 14;
         plane.TECS_controller.set_pitch_max_limit((transition_pitch_max+1)*2);
     }
     if (transition_state < TRANSITION_DONE) {
+        plane.log_qupdate_transition = 15;
         // during transition we ask TECS to use a synthetic
         // airspeed. Otherwise the pitch limits will throw off the
         // throttle calculation which is driven by pitch
         plane.TECS_controller.use_synthetic_airspeed();
     }
-    
+
+#if ACTIVE_LOG_QAUTO_05
+    log_transition_state1_ = transition_state;
+#endif
+
     switch (transition_state) {
     case TRANSITION_AIRSPEED_WAIT: {
+        plane.log_qupdate_transition = 16;
         motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
         // we hold in hover until the required airspeed is reached
         if (transition_start_ms == 0) {
@@ -1736,6 +1801,14 @@ void QuadPlane::update_transition(void)
 
         last_throttle = motors->get_throttle();
 
+        //pedido: logar transition_state, transition_low_airspeed_ms, floats climb_rate_cms, ahrs.get_gyro().z e last_throttle nessa linha
+#if ACTIVE_LOG_QAUTO_05
+        log_transition_low_airspeed_ms0_ = transition_low_airspeed_ms;
+        log_climb_rate_cms_ = climb_rate_cms;
+        log_ahrs_get_gyro_z0_ = ahrs.get_gyro().z;
+        log_last_throttle0_ = last_throttle;
+#endif
+
         // reset integrators while we are below target airspeed as we
         // may build up too much while still primarily under
         // multicopter control
@@ -1748,6 +1821,7 @@ void QuadPlane::update_transition(void)
     }
         
     case TRANSITION_TIMER: {
+        plane.log_qupdate_transition = 17;
         motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
         // after airspeed is reached we degrade throttle over the
         // transition time, but continue to stabilize
@@ -1761,6 +1835,16 @@ void QuadPlane::update_transition(void)
         float trans_time_ms = (float)transition_time_ms.get();
         float transition_scale = (trans_time_ms - transition_timer_ms) / trans_time_ms;
         float throttle_scaled = last_throttle * transition_scale;
+
+        //pedido: logar transition_low_airspeed_ms, now, trans_time_ms, transition_scale, last_throttle e ahrs.get_gyro().z nessa linha
+#if ACTIVE_LOG_QAUTO_05
+        log_transition_low_airspeed_ms1_ = transition_low_airspeed_ms;
+        log_now = now;
+        log_ahrs_get_gyro_z1_ = ahrs.get_gyro().z;
+        log_trans_time_ms_ = trans_time_ms;
+        log_transition_scale_ = transition_scale;
+        log_last_throttle1_ = last_throttle;
+#endif
 
         // set zero throttle mix, to give full authority to
         // throttle. This ensures that the fixed wing controllers get
@@ -1785,6 +1869,7 @@ void QuadPlane::update_transition(void)
     }
 
     case TRANSITION_ANGLE_WAIT_FW: {
+        plane.log_qupdate_transition = 18;
         motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
         assisted_flight = true;
         // calculate transition rate in degrees per
@@ -1792,31 +1877,48 @@ void QuadPlane::update_transition(void)
         // in half the transition time
         float transition_rate = tailsitter.transition_angle / float(transition_time_ms/2);
         uint32_t dt = now - transition_start_ms;
-        float pitch_cd;
-        pitch_cd = constrain_float((-transition_rate * dt)*100, -8500, 0);
-        // if already pitched forward at start of transition, wait until curve catches up
-        plane.nav_pitch_cd = (pitch_cd > transition_initial_pitch)? transition_initial_pitch : pitch_cd;
+        plane.nav_pitch_cd = constrain_float((-transition_rate * dt)*100, -8500, 0);
         plane.nav_roll_cd = 0;
         check_attitude_relax();
         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(plane.nav_roll_cd,
                                                                       plane.nav_pitch_cd,
                                                                       0);
-        // set throttle at either hover throttle or current throttle, whichever is higher, through the transition
-        attitude_control->set_throttle_out(MAX(motors->get_throttle_hover(),attitude_control->get_throttle_in()), true, 0);
+        attitude_control->set_throttle_out(motors->get_throttle_hover(), true, 0);
         break;
     }
 
     case TRANSITION_ANGLE_WAIT_VTOL:
+    plane.log_qupdate_transition = 19;
         // nothing to do, this is handled in the fw attitude controller
         return;
 
     case TRANSITION_DONE:
+    plane.log_qupdate_transition = 20;
         if (!tilt.motors_active && !is_tailsitter()) {
             motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::SHUT_DOWN);
             motors->output();
         }
+
         return;
     }
+#if ACTIVE_LOG_QAUTO_05
+    uint8_t log_update_transition = plane.log_qupdate_transition;
+    uint8_t log_transition_state0 = log_transition_state0_;
+    uint8_t log_transition_state1 = log_transition_state1_;
+    uint8_t log_transition_state2 = transition_state;
+    uint8_t log_have_airspeed = log_have_airspeed_;
+    uint32_t log_transition_low_airspeed_ms0 = log_transition_low_airspeed_ms0_;
+    uint32_t log_transition_low_airspeed_ms1 = log_transition_low_airspeed_ms1_;
+    float log_aspeed = log_aspeed_;
+    float log_climb_rate_cms = log_climb_rate_cms_;
+    float log_ahrs_get_gyro_z0 = log_ahrs_get_gyro_z0_;
+    float log_ahrs_get_gyro_z1 = log_ahrs_get_gyro_z1_;
+    float log_last_throttle0 = log_last_throttle0_;
+    float log_last_throttle1 = log_last_throttle1_;
+    float log_trans_time_ms = log_trans_time_ms_;
+    float log_transition_scale = log_transition_scale_;
+    AUX_UPDATE_TRANSITION;
+#endif    
 
     motors_output();
 }

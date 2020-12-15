@@ -1091,3 +1091,44 @@ void AP_Logger::Write_PSC(const Vector3f &pos_target, const Vector3f &position, 
     };
     WriteBlock(&pkt, sizeof(pkt));
 }
+
+void AP_Logger::WriteQ_Update_Transition( 
+    uint8_t update_transition,
+    uint8_t transition_state0,
+    uint8_t transition_state1,
+    uint8_t transition_state2,
+    uint8_t have_airspeed,
+    uint32_t transition_low_airspeed_ms0,
+    uint32_t transition_low_airspeed_ms1,
+    float aspeed,
+    float climb_rate_cms,
+    float ahrs_get_gyro_z0,
+    float ahrs_get_gyro_z1,
+    float last_throttle0,
+    float last_throttle1,
+    float trans_time_ms,
+    float transition_scale,
+    uint32_t ap_hal_now)
+{
+    struct log_QAUTO_05 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_05),
+        time_us : AP_HAL::micros64(),
+        transition_state0 : transition_state0,
+        transition_state1 : transition_state1,
+        transition_state2 : transition_state2,
+        have_airspeed : have_airspeed,
+        transition_low_airspeed_ms0 : transition_low_airspeed_ms0,
+        transition_low_airspeed_ms1 : transition_low_airspeed_ms1,
+        aspeed : aspeed,
+        climb_rate_cms : climb_rate_cms,
+        ahrs_get_gyro_z0 : ahrs_get_gyro_z0,
+        ahrs_get_gyro_z1 : ahrs_get_gyro_z1,
+        last_throttle0 : last_throttle0,
+        last_throttle1 : last_throttle1,
+        trans_time_ms : trans_time_ms,
+        transition_scale : transition_scale,
+        ap_hal_now : ap_hal_now
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}

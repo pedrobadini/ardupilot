@@ -19,6 +19,7 @@
 #include <AP_Proximity/AP_Proximity.h>
 #include <AP_InertialSensor/AP_InertialSensor_Backend.h>
 #include <AP_Vehicle/ModeReason.h>
+#include "xmobots_logs.h"
 
 #include <stdint.h>
 
@@ -299,6 +300,8 @@ public:
     void WriteCritical(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, ...);
     void WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list, bool is_critical=false);
 
+    void WriteQ_Update_Transition(uint8_t update_transition, uint8_t transition_state0, uint8_t transition_state1, uint8_t transition_state2, uint8_t have_airspeed, uint32_t transition_low_airspeed_ms0, uint32_t transition_low_airspeed_ms1, float aspeed, float climb_rate_cms, float ahrs_get_gyro_z0, float ahrs_get_gyro_z1, float last_throttle0, float last_throttle1, float trans_time_ms, float transition_scale, uint32_t ap_hal_now);
+    
     // This structure provides information on the internal member data of a PID for logging purposes
     struct PID_Info {
         float target;
