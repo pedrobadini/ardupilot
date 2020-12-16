@@ -1092,6 +1092,121 @@ void AP_Logger::Write_PSC(const Vector3f &pos_target, const Vector3f &position, 
     WriteBlock(&pkt, sizeof(pkt));
 }
 
+void AP_Logger::WriteQ_ModeAuto_Update(
+    uint8_t in_vtol_auto, 
+    uint8_t in_vtol_mode, 
+    uint8_t auto_state_vtol_mode, 
+    uint16_t nav_cmd_id, 
+    uint8_t qcontrol_auto_stage)
+{
+    
+    struct log_QAUTO_00 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_00),
+        time_us : AP_HAL::micros64(),
+        vtol_auto : in_vtol_auto,
+        vtol_mode : in_vtol_mode,
+        auto_state_vtol_mode : auto_state_vtol_mode,
+        nav_cmd : nav_cmd_id,
+        controller : qcontrol_auto_stage
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+    
+}
+
+void AP_Logger::WriteQ_Do_Vtol_Takeoff( 
+    int32_t next_lat, 
+    int32_t next_lon, 
+    int32_t next_alt, 
+    int32_t curr_alt, 
+    int16_t pilot_acc_z, 
+    int16_t pilot_vel_z, 
+    float curr_vel_z, 
+    uint32_t takeoff_time_limit_ms, 
+    uint16_t nav_cmd)
+{   
+    /*
+    struct log_QAUTO_01 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_01),
+        time_us : AP_HAL::micros64(),
+        next_lat : next_lat,
+        next_lon : next_lon,
+        next_alt : next_alt,
+        curr_alt : curr_alt,
+        pilot_acc_z : pilot_acc_z,
+        pilot_vel_z : pilot_vel_z,
+        curr_vel_z  : curr_vel_z,
+        takeoff_time_limit_ms : takeoff_time_limit_ms,
+        nav_cmd : nav_cmd
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+    */
+}
+
+void AP_Logger::WriteQ_Verify_Vtol_Takeoff(
+    uint8_t vtol_available, 
+    uint8_t takeoff_time_limit, 
+    uint8_t excessive_wind, 
+    uint8_t reached_alt)
+{
+    
+    struct log_QAUTO_02 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_02),
+        time_us : AP_HAL::micros64(),
+        vtol_available : vtol_available,
+        takeoff_time_limit : takeoff_time_limit,
+        excessive_wind : excessive_wind,
+        reached_alt : reached_alt
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+    
+}
+
+void AP_Logger::WriteQ_Do_Vtol_Land(
+    int32_t next_lat, 
+    int32_t next_lon, 
+    int32_t next_alt, 
+    uint8_t poscontrol_state)
+{
+    
+    struct log_QAUTO_03 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_03),
+        time_us : AP_HAL::micros64(),
+        next_lat : next_lat,
+        next_lon : next_lon,
+        next_alt : next_alt,
+        poscontrol_state : poscontrol_state
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+    
+}
+
+void AP_Logger::WriteQ_Verify_Vtol_Land(
+    int32_t next_lat,
+    int32_t next_lon,
+    int32_t next_alt,
+    uint8_t poscontrol_state,
+    uint8_t poscontrol_state_before,
+    uint8_t check_land_final,
+    uint8_t check_land_complete,
+    float wp_distance)
+{
+    
+    struct log_QAUTO_04 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_04),
+        time_us : AP_HAL::micros64(),
+        next_lat : next_lat,
+        next_lon : next_lon,
+        next_alt : next_alt,
+        poscontrol_state : poscontrol_state,
+        poscontrol_state_before : poscontrol_state_before,
+        check_land_final : check_land_final,
+        check_land_complete : check_land_complete,
+        wp_distance : wp_distance
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+    
+}
+
 void AP_Logger::WriteQ_Update_Transition( 
     uint8_t update_transition,
     uint8_t transition_state0,
@@ -1138,8 +1253,7 @@ void AP_Logger::WriteQ_Desired_Yaw_Rate_Cds(
     float desired_auto_yaw_rate_cds,
     float get_pilot_input_yaw_rate_cds,
     float get_weathervane_yaw_rate_cds)
-{
-    
+{   
     struct log_QAUTO_06 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_06),
         time_us : AP_HAL::micros64(),
@@ -1150,7 +1264,6 @@ void AP_Logger::WriteQ_Desired_Yaw_Rate_Cds(
     };
 
     WriteBlock(&pkt, sizeof(pkt));
-
 }
 
 void AP_Logger::WriteQ_Update( 
@@ -1161,6 +1274,7 @@ void AP_Logger::WriteQ_Update(
     uint8_t in_vtol_auto)
 {
     /*
+    
     struct log_QAUTO_07 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_07),
         time_us : AP_HAL::micros64(),

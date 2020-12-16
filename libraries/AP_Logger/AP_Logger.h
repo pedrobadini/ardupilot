@@ -300,6 +300,11 @@ public:
     void WriteCritical(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, ...);
     void WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list, bool is_critical=false);
 
+    void WriteQ_ModeAuto_Update(uint8_t in_vtol_auto, uint8_t in_vtol_mode, uint8_t auto_state_vtol_mode, uint16_t nav_cmd_id, uint8_t qcontrol_auto_stage);
+    void WriteQ_Do_Vtol_Takeoff(int32_t next_lat, int32_t next_lon, int32_t next_alt, int32_t curr_alt, int16_t pilot_acc_z, int16_t pilot_vel_z, float curr_vel_z, uint32_t takeoff_time_limit_ms, uint16_t nav_cmd);
+    void WriteQ_Verify_Vtol_Takeoff(uint8_t vtol_available, uint8_t takeoff_time_limit, uint8_t excessive_wind, uint8_t reached_alt);
+    void WriteQ_Do_Vtol_Land(int32_t next_lat, int32_t next_lon, int32_t next_alt, uint8_t poscontrol_state);
+    void WriteQ_Verify_Vtol_Land(int32_t next_lat, int32_t next_lon, int32_t next_alt, uint8_t poscontrol_state, uint8_t poscontrol_state_before, uint8_t check_land_final, uint8_t check_land_complete, float wp_distance);
     void WriteQ_Update_Transition(uint8_t update_transition, uint8_t transition_state0, uint8_t transition_state1, uint8_t transition_state2, uint8_t have_airspeed, uint32_t transition_low_airspeed_ms0, uint32_t transition_low_airspeed_ms1, float aspeed, float climb_rate_cms, float ahrs_get_gyro_z0, float ahrs_get_gyro_z1, float last_throttle0, float last_throttle1, float trans_time_ms, float transition_scale, uint32_t ap_hal_now);
     void WriteQ_Desired_Yaw_Rate_Cds(uint8_t assited_flight, float desired_auto_yaw_rate_cds, float get_pilot_input_yaw_rate_cds, float get_weathervane_yaw_rate_cds);
     void WriteQ_Update(uint8_t in_vtol_mode, uint8_t transition_state_before, uint8_t transition_state, uint8_t available, uint8_t in_vtol_auto);

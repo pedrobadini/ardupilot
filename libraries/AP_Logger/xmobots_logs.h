@@ -1,5 +1,90 @@
 //#ifndef XMOLOGS_H_
 //#define XMOLOGS_H_
+/***********************************************************************
+ * 
+ *                  QAUTO LOG STRUCTURES AND DEFINES
+ * 
+************************************************************************/
+
+//QAUTO - LOG0 ==================================================================================
+#define LOG_QAUTO_00_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_00), "QAU0",\
+      "QBBBHB","t,Vauto,Vmode,AutSttVmode,NavCmd,Ctrl","s-----","F00000"}
+
+struct PACKED log_QAUTO_00{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     uint8_t vtol_auto;
+     uint8_t vtol_mode;
+     uint8_t auto_state_vtol_mode;
+     uint16_t nav_cmd;
+     uint8_t controller;
+};
+
+//QAUT1 - LOG1 ==================================================================================
+#define LOG_QAUTO_01_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_01), "QAU1",\
+      "QiiiihhfIH","t,L,L,A,Alt,AccZ,VZ,CurrVZ,Tlmt,NavCmd","s---------","F000000000"}
+
+struct PACKED log_QAUTO_01{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     int32_t next_lat;
+     int32_t next_lon;
+     int32_t next_alt;
+     int32_t curr_alt;
+     int16_t pilot_acc_z;
+     int16_t pilot_vel_z;
+     float curr_vel_z;
+     uint32_t takeoff_time_limit_ms;
+     uint16_t nav_cmd;
+};
+
+//QAUT2 - LOG2 ==================================================================================
+#define LOG_QAUTO_02_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_02), "QAU2",\
+      "QBBBB","t,Avlb,TOLmt,ExcWnd,RchdAlt","s----","F0000"}
+
+struct PACKED log_QAUTO_02{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     uint8_t vtol_available;
+     uint8_t takeoff_time_limit;
+     uint8_t excessive_wind;
+     uint8_t reached_alt;
+};
+
+//QAUT3 - LOG3 ==================================================================================
+#define LOG_QAUTO_03_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_03), "QAU3",\
+      "QiiiB","t,nlat,nlon,nalt,pc_s","s----","F0000"}
+
+struct PACKED log_QAUTO_03{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     int32_t next_lat;   
+     int32_t next_lon;
+     int32_t next_alt;
+     uint8_t poscontrol_state;
+};
+
+//QAUT4 - LOG4 ==================================================================================
+#define LOG_QAUTO_04_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_04), "QAU4",\
+      "QiiiBBBBf","t,nlat,nlon,nalt,pc_s,pc_sb,clf,clc,wp_d","s--------","F00000000"}
+
+struct PACKED log_QAUTO_04{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     int32_t next_lat;
+     int32_t next_lon;
+     int32_t next_alt;
+     uint8_t poscontrol_state;
+     uint8_t poscontrol_state_before;
+     uint8_t check_land_final;
+     uint8_t check_land_complete;
+     float wp_distance;
+};
 
 
 //QAUT5 - LOG5 ==================================================================================

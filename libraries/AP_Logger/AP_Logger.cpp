@@ -483,7 +483,9 @@ void AP_Logger::validate_structures(const struct LogStructure *logstructures, co
 
     for (uint16_t i=0; i<num_types; i++) {
         const struct LogStructure *logstructure = &logstructures[i];
+        
         passed = validate_structure(logstructure, i) && passed;
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "badini1 %d", passed);
     }
 
     // ensure units are unique:

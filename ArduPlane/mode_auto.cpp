@@ -1,6 +1,15 @@
 #include "mode.h"
 #include "Plane.h"
 
+#define ACTIVE_LOG_QAUTO_00 1
+
+#define AUX_UPDATE AP::logger().WriteQ_ModeAuto_Update(\
+log_in_vtol_auto,\
+log_in_vtol_mode,\
+log_auto_state_vtol_mode,\
+log_nav_cmd_id,\
+log_qcontrol_auto_stage)
+
 bool ModeAuto::_enter()
 {
     plane.throttle_allows_nudging = true;
@@ -51,10 +60,27 @@ void ModeAuto::update()
         // restart_landing_sequence() is called when not executing a NAV_LAND or there is no previous nav point
         plane.set_mode(plane.mode_rtl, ModeReason::MISSION_END);
         gcs().send_text(MAV_SEVERITY_INFO, "Aircraft in auto without a running mission");
+#if ACTIVE_LOG_QAUTO_00
+        uint8_t log_in_vtol_auto = plane.quadplane.in_vtol_auto();
+        uint8_t log_in_vtol_mode = plane.quadplane.in_vtol_mode();
+        uint8_t log_auto_state_vtol_mode =  (uint8_t) plane.auto_state.vtol_mode;
+        uint16_t log_nav_cmd_id = plane.mission.get_current_nav_cmd().id;
+        uint8_t log_qcontrol_auto_stage = 0;
+        AUX_UPDATE;
+#endif
         return;
     }
 
+
+
     uint16_t nav_cmd_id = plane.mission.get_current_nav_cmd().id;
+
+#if ACTIVE_LOG_QAUTO_00
+    uint8_t log_in_vtol_auto = plane.quadplane.in_vtol_auto();
+    uint8_t log_in_vtol_mode = plane.quadplane.in_vtol_mode();
+    uint8_t log_auto_state_vtol_mode =  (uint8_t) plane.auto_state.vtol_mode;
+    uint16_t log_nav_cmd_id = nav_cmd_id;
+#endif
 
     if (plane.quadplane.in_vtol_auto()) {
         plane.quadplane.control_auto();
@@ -86,6 +112,10 @@ void ModeAuto::update()
         plane.calc_nav_pitch();
         plane.calc_throttle();
     }
+#if ACTIVE_LOG_QAUTO_00
+    uint8_t log_qcontrol_auto_stage = plane.log_qcontrol_auto_stage;
+    AUX_UPDATE;
+#endif
 }
 
 void ModeAuto::navigate()

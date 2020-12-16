@@ -1,5 +1,46 @@
 #include "Plane.h"
 
+#define ACTIVE_LOG_QAUTO_01 1
+
+#define AUX_DO_VTOL_TO AP::logger().WriteQ_Do_Vtol_Takeoff(\
+    log_next_lat,\
+    log_next_lon,\
+    log_next_alt,\
+    log_curr_alt,\
+    log_pilot_acc_z,\
+    log_pilot_vel_z,\
+    log_curr_vel_z,\
+    log_takeoff_time_limit_ms,\
+    log_nav_cmd)
+
+#define ACTIVE_LOG_QAUTO_02 1
+
+#define AUX_VRF_VTOL_TO AP::logger().WriteQ_Verify_Vtol_Takeoff(\
+    log_vtol_available,\
+    log_to_limit,\
+    log_excessive_wind,\
+    log_reached_alt)
+
+#define ACTIVE_LOG_QAUTO_03 1
+
+#define AUX_DO_VTOL_LAND AP::logger().WriteQ_Do_Vtol_Land(\
+    log_next_lat,\
+    log_next_lon,\
+    log_next_alt,\
+    log_poscontrol_state)
+
+#define ACTIVE_LOG_QAUTO_04 1
+
+#define AUX_VERIFY_VTOL_LAND AP::logger().WriteQ_Verify_Vtol_Land(\
+    log_next_lat,\
+    log_next_lon,\
+    log_next_alt,\
+    log_poscontrol_state,\
+    log_poscontrol_state_before,\
+    log_wp_distance,\
+    (uint8_t)log_check_land_final,\
+    log_check_land_complete)
+
 #define ACTIVE_LOG_QAUTO_05 1
 
 #define AUX_UPDATE_TRANSITION AP::logger().WriteQ_Update_Transition(\
@@ -2820,12 +2861,14 @@ void QuadPlane::control_auto(void)
     case MAV_CMD_NAV_VTOL_TAKEOFF:
     case MAV_CMD_NAV_TAKEOFF:
         if (is_vtol_takeoff(id)) {
+            plane.log_qcontrol_auto_stage = 1;
             takeoff_controller();
         }
         break;
     case MAV_CMD_NAV_VTOL_LAND:
     case MAV_CMD_NAV_LAND:
         if (is_vtol_land(id)) {
+            plane.log_qcontrol_auto_stage = 2;
             vtol_position_controller();
         }
         break;
@@ -2833,9 +2876,11 @@ void QuadPlane::control_auto(void)
     case MAV_CMD_NAV_LOITER_TIME:
     case MAV_CMD_NAV_LOITER_TURNS:
     case MAV_CMD_NAV_LOITER_TO_ALT:
+        plane.log_qcontrol_auto_stage = 3;
         vtol_position_controller();
         break;
     default:
+        plane.log_qcontrol_auto_stage = 4;
         waypoint_controller();
         break;
     }
@@ -2932,6 +2977,19 @@ bool QuadPlane::do_vtol_takeoff(const AP_Mission::Mission_Command& cmd)
     takeoff_start_time_ms = millis();
     takeoff_time_limit_ms = MAX(travel_time * takeoff_failure_scalar * 1000, 5000); // minimum time 5 seconds
 
+#if ACTIVE_LOG_QAUTO_01
+    int32_t log_next_lat = plane.next_WP_loc.lat;
+    int32_t log_next_lon = plane.next_WP_loc.lng;
+    int32_t log_next_alt = plane.next_WP_loc.alt;
+    int32_t log_curr_alt = plane.current_loc.alt;
+    int16_t log_pilot_acc_z = pilot_accel_z;
+    int16_t log_pilot_vel_z = pilot_velocity_z_max;
+    float log_curr_vel_z = inertial_nav.get_velocity_z();
+    uint32_t log_takeoff_time_limit_ms = travel_time * 1000;
+    uint16_t log_nav_cmd = cmd.id;
+    AUX_DO_VTOL_TO;
+#endif
+
     return true;
 }
 
@@ -2965,6 +3023,15 @@ bool QuadPlane::do_vtol_land(const AP_Mission::Mission_Command& cmd)
     
     // also update nav_controller for status output
     plane.nav_controller->update_waypoint(plane.prev_WP_loc, plane.next_WP_loc);
+
+#if ACTIVE_LOG_QAUTO_03
+    int32_t log_next_lat = plane.next_WP_loc.lat;
+    int32_t log_next_lon = plane.next_WP_loc.lng;
+    int32_t log_next_alt = plane.next_WP_loc.alt;
+    uint8_t log_poscontrol_state = poscontrol.state;
+    AUX_DO_VTOL_LAND;
+#endif
+
     return true;
 }
 
@@ -2973,11 +3040,23 @@ bool QuadPlane::do_vtol_land(const AP_Mission::Mission_Command& cmd)
  */
 bool QuadPlane::verify_vtol_takeoff(const AP_Mission::Mission_Command &cmd)
 {
+#if ACTIVE_LOG_QAUTO_02
+    uint8_t log_vtol_available = available();
+    uint8_t log_to_limit = 3;
+    uint8_t log_excessive_wind = (plane.airspeed.get_airspeed() > maximum_takeoff_airspeed);
+    uint8_t log_reached_alt = (uint8_t) (plane.current_loc.alt < plane.next_WP_loc.alt);
+    AUX_VRF_VTOL_TO;
+#endif
     if (!available()) {
         return true;
     }
 
     const uint32_t now = millis();
+
+#if ACTIVE_LOG_QAUTO_02
+    log_to_limit = (uint8_t) ((now - takeoff_start_time_ms) > takeoff_time_limit_ms);
+    AUX_VRF_VTOL_TO;
+#endif
 
     // reset takeoff start time if we aren't armed, as we won't have made any progress
     if (!hal.util->get_soft_armed()) {
@@ -3065,8 +3144,10 @@ bool QuadPlane::land_detector(uint32_t timeout_ms)
  */
 bool QuadPlane::check_land_complete(void)
 {
+    plane.log_qcheck_land_complete = 1;
     if (poscontrol.state != QPOS_LAND_FINAL) {
         // only apply to final landing phase
+        plane.log_qcheck_land_complete = 2;
         return false;
     }
     if (land_detector(4000)) {
@@ -3074,10 +3155,12 @@ bool QuadPlane::check_land_complete(void)
         gcs().send_text(MAV_SEVERITY_INFO,"Land complete");
         // reload target airspeed which could have been modified by the mission
         plane.aparm.airspeed_cruise_cm.load();
+        plane.log_qcheck_land_complete = 3;
         if (plane.control_mode != &plane.mode_auto ||
             !plane.mission.continue_after_land()) {
             // disarm on land unless we have MIS_OPTIONS setup to
             // continue after land in AUTO
+            plane.log_qcheck_land_complete = 4;
             plane.arming.disarm(AP_Arming::Method::LANDED);
         }
         return true;
@@ -3117,6 +3200,12 @@ bool QuadPlane::verify_vtol_land(void)
     if (!available()) {
         return true;
     }
+
+#if ACTIVE_LOG_QAUTO_04
+    uint8_t log_poscontrol_state_before = poscontrol.state;
+    plane.log_qcheck_land_complete = 0;
+#endif
+
     if (poscontrol.state == QPOS_POSITION2 &&
         plane.auto_state.wp_distance < 2) {
         poscontrol.state = QPOS_LAND_DESCEND;
@@ -3138,8 +3227,9 @@ bool QuadPlane::verify_vtol_land(void)
     }
 
     // at land_final_alt begin final landing
-    if (poscontrol.state == QPOS_LAND_DESCEND && check_land_final()) {
-        poscontrol.state = QPOS_LAND_FINAL;
+    bool log_check_land_final = check_land_final();//log_check_land_final foi criada por nos, para voltar o codigo
+    if (poscontrol.state == QPOS_LAND_DESCEND && log_check_land_final) {//  ao normal basta trocar o log_check_land_final
+        poscontrol.state = QPOS_LAND_FINAL;                         // dentro da condição do if pela função check_land_final() 
 
         // cut IC engine if enabled
         if (land_icengine_cut != 0) {
@@ -3152,6 +3242,17 @@ bool QuadPlane::verify_vtol_land(void)
         gcs().send_text(MAV_SEVERITY_INFO,"Mission continue");
         return true;
     }
+
+#if ACTIVE_LOG_QAUTO_04
+    int32_t log_next_lat = plane.next_WP_loc.lat;
+    int32_t log_next_lon = plane.next_WP_loc.lng;
+    int32_t log_next_alt = plane.next_WP_loc.alt;
+    float log_wp_distance = plane.auto_state.wp_distance;
+    uint8_t log_poscontrol_state = poscontrol.state;
+    uint8_t log_check_land_complete = plane.log_qcheck_land_complete;
+    AUX_VERIFY_VTOL_LAND;
+#endif
+
     return false;
 }
 

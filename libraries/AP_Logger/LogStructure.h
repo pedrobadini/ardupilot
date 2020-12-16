@@ -2038,11 +2038,16 @@ LOG_STRUCTURE_FROM_NAVEKF3 \
       "WINC", "QBBBBBfffHfb", "TimeUS,Heal,ThEnd,Mov,Clut,Mode,DLen,Len,DRate,Tens,Vcc,Temp", "s-----mmn?vO", "F-----000000" }, \
     { LOG_PSC_MSG, sizeof(log_PSC), \
       "PSC", "Qffffffffffff", "TimeUS,TPX,TPY,PX,PY,TVX,TVY,VX,VY,TAX,TAY,AX,AY", "smmmmnnnnoooo", "F000000000000" },\
+    LOG_QAUTO_00_BASE(LOG_QAUTO_00),\
+    LOG_QAUTO_02_BASE(LOG_QAUTO_02),\
+    LOG_QAUTO_03_BASE(LOG_QAUTO_03),\
+    LOG_QAUTO_04_BASE(LOG_QAUTO_04),\
     LOG_QAUTO_05_BASE(LOG_QAUTO_05),\
     LOG_QAUTO_06_BASE(LOG_QAUTO_06),\
     LOG_QAUTO_08_BASE(LOG_QAUTO_08),\
     LOG_QAUTO_09_BASE(LOG_QAUTO_09)
-    //LOG_QAUTO_07_BASE(LOG_QAUTO_07),
+    //LOG_QAUTO_01_BASE(LOG_QAUTO_01)
+    //LOG_QAUTO_07_BASE(LOG_QAUTO_07)
 
 // @LoggerMessage: SBPH
 // @Description: Swift Health Data
@@ -2175,6 +2180,11 @@ enum LogMessages : uint8_t {
     LOG_PSC_MSG,
 
 #if SHOULD_LOG_QAUTO
+    LOG_QAUTO_00,
+    //LOG_QAUTO_01,
+    LOG_QAUTO_02,
+    LOG_QAUTO_03,
+    LOG_QAUTO_04,
     LOG_QAUTO_05,
     LOG_QAUTO_06,
     //LOG_QAUTO_07,
