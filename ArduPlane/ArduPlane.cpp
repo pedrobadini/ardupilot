@@ -520,34 +520,45 @@ void Plane::update_alt()
  */
 void Plane::update_flight_stage(void)
 {
+int8_t log_flight_stage_condition = -1;
 #if ACTIVE_LOG_QAUTO_09
-    int8_t log_flight_stage_condition = -1;
     uint8_t log_flight_stage_bf = (uint8_t) flight_stage;
 #endif
     // Update the speed & height controller states
-    if (auto_throttle_mode && !throttle_suppressed) {        
+    if (auto_throttle_mode && !throttle_suppressed) {  
+        log_flight_stage_condition = 1;       
         if (control_mode == &mode_auto) {
+            log_flight_stage_condition = 4;
             if (quadplane.in_vtol_auto()) {
+                log_flight_stage_condition = 6;
                 set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_VTOL);
             } else if (auto_state.takeoff_complete == false) {
+                log_flight_stage_condition = 7;
                 set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_TAKEOFF);
             } else if (mission.get_current_nav_cmd().id == MAV_CMD_NAV_LAND) {
+                log_flight_stage_condition = 8;
                 if (landing.is_commanded_go_around() || flight_stage == AP_Vehicle::FixedWing::FLIGHT_ABORT_LAND) {
+                    log_flight_stage_condition = 11;
                     // abort mode is sticky, it must complete while executing NAV_LAND
                     set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_ABORT_LAND);
                 } else if (landing.get_abort_throttle_enable() && get_throttle_input() >= 90 &&
                            landing.request_go_around()) {
+                    log_flight_stage_condition = 12;
                     gcs().send_text(MAV_SEVERITY_INFO,"Landing aborted via throttle");
                     set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_ABORT_LAND);
                 } else {
+                    log_flight_stage_condition = 13;
                     set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_LAND);
                 }
             } else if (quadplane.in_assisted_flight()) {
+                log_flight_stage_condition = 9;
                 set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_VTOL);
             } else {
+                log_flight_stage_condition = 10;
                 set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_NORMAL);
             }
         } else if (control_mode != &mode_takeoff) {
+            log_flight_stage_condition = 5;
             // If not in AUTO then assume normal operation for normal TECS operation.
             // This prevents TECS from being stuck in the wrong stage if you switch from
             // AUTO to, say, FBWB during a landing, an aborted landing or takeoff.
@@ -555,8 +566,10 @@ void Plane::update_flight_stage(void)
         }
     } else if (quadplane.in_vtol_mode() ||
                quadplane.in_assisted_flight()) {
+        log_flight_stage_condition = 2;
         set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_VTOL);
     } else {
+        log_flight_stage_condition = 3;
         set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_NORMAL);
     }
 #if ACTIVE_LOG_QAUTO_09
