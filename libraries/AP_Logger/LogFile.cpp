@@ -1139,7 +1139,7 @@ void AP_Logger::WriteQ_Desired_Yaw_Rate_Cds(
     float get_pilot_input_yaw_rate_cds,
     float get_weathervane_yaw_rate_cds)
 {
-    /*
+    
     struct log_QAUTO_06 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_06),
         time_us : AP_HAL::micros64(),
@@ -1150,7 +1150,7 @@ void AP_Logger::WriteQ_Desired_Yaw_Rate_Cds(
     };
 
     WriteBlock(&pkt, sizeof(pkt));
-*/
+
 }
 
 void AP_Logger::WriteQ_Update( 
