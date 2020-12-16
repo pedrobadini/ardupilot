@@ -301,7 +301,11 @@ public:
     void WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list, bool is_critical=false);
 
     void WriteQ_Update_Transition(uint8_t update_transition, uint8_t transition_state0, uint8_t transition_state1, uint8_t transition_state2, uint8_t have_airspeed, uint32_t transition_low_airspeed_ms0, uint32_t transition_low_airspeed_ms1, float aspeed, float climb_rate_cms, float ahrs_get_gyro_z0, float ahrs_get_gyro_z1, float last_throttle0, float last_throttle1, float trans_time_ms, float transition_scale, uint32_t ap_hal_now);
-    
+    void WriteQ_Desired_Yaw_Rate_Cds(uint8_t assited_flight, float desired_auto_yaw_rate_cds, float get_pilot_input_yaw_rate_cds, float get_weathervane_yaw_rate_cds);
+    void WriteQ_Update(uint8_t in_vtol_mode, uint8_t transition_state_before, uint8_t transition_state, uint8_t available, uint8_t in_vtol_auto);
+    void WriteQ_In_Vtol_Auto(uint8_t condition_two, uint8_t condition_three, uint16_t nav_cmd_id, uint8_t vtol_loiter, uint8_t is_vtol_takeoff, uint8_t is_vtol_land);
+    void WriteQ_Update_Flight_Stage(int8_t log_flight_stage_condition, uint8_t log_flight_stage_bf, uint8_t log_flight_stage);
+
     // This structure provides information on the internal member data of a PID for logging purposes
     struct PID_Info {
         float target;

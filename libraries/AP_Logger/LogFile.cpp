@@ -1132,3 +1132,84 @@ void AP_Logger::WriteQ_Update_Transition(
 
     WriteBlock(&pkt, sizeof(pkt));
 }
+
+void AP_Logger::WriteQ_Desired_Yaw_Rate_Cds(
+    uint8_t assited_flight,
+    float desired_auto_yaw_rate_cds,
+    float get_pilot_input_yaw_rate_cds,
+    float get_weathervane_yaw_rate_cds)
+{
+    /*
+    struct log_QAUTO_06 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_06),
+        time_us : AP_HAL::micros64(),
+        assited_flight : assited_flight,
+        desired_auto_yaw_rate_cds : desired_auto_yaw_rate_cds,
+        get_pilot_input_yaw_rate_cds : get_pilot_input_yaw_rate_cds,
+        get_weathervane_yaw_rate_cds : get_weathervane_yaw_rate_cds
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+*/
+}
+
+void AP_Logger::WriteQ_Update( 
+    uint8_t in_vtol_mode,
+    uint8_t transition_state_before,
+    uint8_t transition_state,
+    uint8_t available,
+    uint8_t in_vtol_auto)
+{
+    /*
+    struct log_QAUTO_07 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_07),
+        time_us : AP_HAL::micros64(),
+        log_in_vtol_mode : in_vtol_mode,
+        log_transition_state_before : transition_state_before,
+        log_transition_state : transition_state,
+        log_available : available,
+        log_in_vtol_auto : in_vtol_auto
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+    */
+}
+
+
+void AP_Logger::WriteQ_In_Vtol_Auto(
+    uint8_t condition_two, 
+    uint8_t condition_three, 
+    uint16_t nav_cmd_id, 
+    uint8_t vtol_loiter, 
+    uint8_t is_vtol_takeoff, 
+    uint8_t is_vtol_land)
+{
+    struct log_QAUTO_08 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_08),
+        time_us : AP_HAL::micros64(),
+        log_condition_two : condition_two,
+        log_condition_three : condition_three,
+        log_nav_cmd_id : nav_cmd_id,
+        log_vtol_loiter : vtol_loiter,
+        log_is_vtol_takeoff : is_vtol_takeoff,
+        log_is_vtol_land : is_vtol_land
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}
+
+void AP_Logger::WriteQ_Update_Flight_Stage(
+    int8_t log_flight_stage_condition, 
+    uint8_t log_flight_stage_bf, 
+    uint8_t log_flight_stage)
+{
+    struct log_QAUTO_09 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_09),
+        time_us : AP_HAL::micros64(),
+        flight_stage_condition : log_flight_stage_condition,
+        flight_stage_bf : log_flight_stage_bf,
+        flight_stage : log_flight_stage
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}

@@ -20,6 +20,33 @@
     log_transition_scale,\
     log_now)
 
+#define ACTIVE_LOG_QAUTO_06 1
+
+#define AUX_DESIRED_YAW_RATE_CDS AP::logger().WriteQ_Desired_Yaw_Rate_Cds(\
+    log_assisted_flight,\
+    log_desired_auto_yaw_rate_cds,\
+    log_get_pilot_input_yaw_rate_cds,\
+    log_get_weathervane_yaw_rate_cds)
+
+#define ACTIVE_LOG_QAUTO_07 1
+
+#define AUX_QUPDATE AP::logger().WriteQ_Update(\
+    log_in_vtol_mode,\
+    log_transition_state_before,\
+    log_transition_state,\
+    log_available,\
+    log_in_vtol_auto)
+
+#define ACTIVE_LOG_QAUTO_08 1
+
+#define AUX_INVTOLAUTO AP::logger().WriteQ_In_Vtol_Auto(\
+    log_condition_two,\
+    log_condition_three,\
+    log_nav_cmd_id,\
+    log_vtol_loiter,\
+    log_is_vtol_takeoff,\
+    log_is_vtol_land)
+
 const AP_Param::GroupInfo QuadPlane::var_info[] = {
 
     // @Param: ENABLE
@@ -1432,10 +1459,21 @@ float QuadPlane::get_pilot_input_yaw_rate_cds(void) const
 float QuadPlane::get_desired_yaw_rate_cds(void)
 {
     float yaw_cds = 0;
+
+#if ACTIVE_LOG_QAUTO_06
+    uint8_t log_assisted_flight_= assisted_flight;
+    float log_desired_auto_yaw_rate_cds_ = 0;
+    float log_get_pilot_input_yaw_rate_cds_ = 0;
+#endif
+
     if (assisted_flight) {
         // use bank angle to get desired yaw rate
         yaw_cds += desired_auto_yaw_rate_cds();
     }
+#if ACTIVE_LOG_QAUTO_06
+        log_desired_auto_yaw_rate_cds_ = yaw_cds;
+#endif
+
     bool manual_air_mode = plane.control_mode->is_vtol_man_throttle() && (air_mode == AirMode::ON);
     if (plane.get_throttle_input() <= 0 && !plane.auto_throttle_mode && !manual_air_mode) {
         // the user may be trying to disarm
@@ -1444,8 +1482,21 @@ float QuadPlane::get_desired_yaw_rate_cds(void)
     // add in pilot input
     yaw_cds += get_pilot_input_yaw_rate_cds();
 
+#if ACTIVE_LOG_QAUTO_06
+    log_get_pilot_input_yaw_rate_cds_ = yaw_cds - log_desired_auto_yaw_rate_cds_;
+#endif
+
     // add in weathervaning
     yaw_cds += get_weathervane_yaw_rate_cds();
+
+#if ACTIVE_LOG_QAUTO_06
+    float log_get_weathervane_yaw_rate_cds = yaw_cds - (log_desired_auto_yaw_rate_cds_ + log_get_pilot_input_yaw_rate_cds_);
+
+    uint8_t log_assisted_flight = log_assisted_flight_;
+    float log_desired_auto_yaw_rate_cds = log_desired_auto_yaw_rate_cds_;
+    float log_get_pilot_input_yaw_rate_cds = log_get_pilot_input_yaw_rate_cds_;
+    AUX_DESIRED_YAW_RATE_CDS;
+#endif
     
     return yaw_cds;
 }
@@ -1931,6 +1982,13 @@ void QuadPlane::update(void)
     if (!setup()) {
         return;
     }
+#if ACTIVE_LOG_QAUTO_07
+    uint8_t log_in_vtol_mode = 255;
+    uint8_t log_transition_state_before = transition_state;
+    uint8_t log_transition_state = 255;
+    uint8_t log_available = 255;
+    uint8_t log_in_vtol_auto = 255;
+#endif 
 
     if ((ahrs_view != NULL) && !is_equal(_last_ahrs_trim_pitch, ahrs_trim_pitch.get())) {
         _last_ahrs_trim_pitch = ahrs_trim_pitch.get();
@@ -1967,11 +2025,23 @@ void QuadPlane::update(void)
         }
         pos_control->relax_alt_hold_controllers(0);
     }
+
+#if ACTIVE_LOG_QAUTO_07
+    log_available = available();
+    log_in_vtol_auto = in_vtol_auto();
+#endif
     
     if (!in_vtol_mode()) {
+#if ACTIVE_LOG_QAUTO_07
+        log_in_vtol_mode = 0;
+#endif
         update_transition();
     } else {
         const uint32_t now = AP_HAL::millis();
+
+#if ACTIVE_LOG_QAUTO_07
+        log_in_vtol_mode = 1;
+#endif 
 
         assisted_flight = false;
 
@@ -2041,6 +2111,11 @@ void QuadPlane::update(void)
     }
 
     tiltrotor_update();
+
+#if ACTIVE_LOG_QAUTO_07
+    log_transition_state = transition_state;
+    AUX_QUPDATE;
+#endif
 }
 
 /*
@@ -2353,6 +2428,15 @@ bool QuadPlane::handle_do_vtol_transition(enum MAV_VTOL_STATE state)
  */
 bool QuadPlane::in_vtol_auto(void) const
 {
+#if  ACTIVE_LOG_QAUTO_08
+    uint8_t log_condition_two = (plane.control_mode != &plane.mode_auto);
+    uint8_t log_condition_three = plane.auto_state.vtol_mode;
+    uint16_t log_nav_cmd_id = plane.mission.get_current_nav_cmd().id;
+    uint8_t log_vtol_loiter = plane.auto_state.vtol_loiter;
+    uint8_t log_is_vtol_takeoff = is_vtol_takeoff(log_nav_cmd_id);
+    uint8_t log_is_vtol_land = is_vtol_land(log_nav_cmd_id);
+    AUX_INVTOLAUTO;
+#endif
     if (!available()) {
         return false;
     }

@@ -22,6 +22,13 @@
 
 #include "Plane.h"
 
+#define ACTIVE_LOG_QAUTO_09 1
+
+#define AUX_UPFLGTSTAGE AP::logger().WriteQ_Update_Flight_Stage(\
+    log_flight_stage_condition,\
+    log_flight_stage_bf,\
+    log_flight_stage)
+
 #define SCHED_TASK(func, rate_hz, max_time_micros) SCHED_TASK_CLASS(Plane, &plane, func, rate_hz, max_time_micros)
 
 
@@ -513,6 +520,10 @@ void Plane::update_alt()
  */
 void Plane::update_flight_stage(void)
 {
+#if ACTIVE_LOG_QAUTO_09
+    int8_t log_flight_stage_condition = -1;
+    uint8_t log_flight_stage_bf = (uint8_t) flight_stage;
+#endif
     // Update the speed & height controller states
     if (auto_throttle_mode && !throttle_suppressed) {        
         if (control_mode == &mode_auto) {
@@ -548,6 +559,10 @@ void Plane::update_flight_stage(void)
     } else {
         set_flight_stage(AP_Vehicle::FixedWing::FLIGHT_NORMAL);
     }
+#if ACTIVE_LOG_QAUTO_09
+    uint8_t log_flight_stage = (uint8_t) flight_stage;
+    AUX_UPFLGTSTAGE;
+#endif
 }
 
 
