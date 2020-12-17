@@ -100,6 +100,17 @@
     log_is_flying_vtol,\
     log_is_zero)
 
+#define ACTIVE_LOG_QAUTO_11 1
+
+#define AUX_TAKEOFF_CONTROLLER AP::logger().WriteQ_Takeoff_Controller(\
+    log_nav_roll_cd,\
+    log_nav_pitch_cd,\
+    log_pc_target_x,\
+    log_pc_target_y,\
+    log_speed_up,\
+    log_pilot_input_yaw_rate,\
+    log_weathervane_yaw_rate)
+
 
 const AP_Param::GroupInfo QuadPlane::var_info[] = {
 
@@ -2814,6 +2825,16 @@ void QuadPlane::setup_target_position(void)
  */
 void QuadPlane::takeoff_controller(void)
 {
+#if ACTIVE_LOG_QAUTO_11
+    int32_t log_nav_roll_cd = plane.nav_roll_cd;
+    int32_t log_nav_pitch_cd = plane.nav_pitch_cd;
+    float log_pc_target_x = poscontrol.target.x;
+    float log_pc_target_y = poscontrol.target.y;
+    float log_speed_up = wp_nav->get_default_speed_up();
+    float log_pilot_input_yaw_rate = get_pilot_input_yaw_rate_cds();
+    float log_weathervane_yaw_rate = get_weathervane_yaw_rate_cds();
+    AUX_TAKEOFF_CONTROLLER;
+#endif
     /*
       for takeoff we use the position controller
     */

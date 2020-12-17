@@ -221,3 +221,20 @@ struct PACKED log_QAUTO_10{
      uint8_t is_flying_vtol;
      uint8_t is_zero;
 };
+
+//QAUT11 - LOG11 ==================================================================================
+#define LOG_QAUTO_11_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_11), "QA11",\
+      "Qiifffff","t,nrol,npit,tar_x,tar_y,spdup,in_y,w_y","s-------","F0000000"}
+
+struct PACKED log_QAUTO_11{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     int32_t nav_roll_cd;
+     int32_t nav_pitch_cd;
+     float pc_target_x;
+     float pc_target_y;
+     float speed_up;
+     float pilot_input_yaw_rate;
+     float weathervane_yaw_rate;
+};

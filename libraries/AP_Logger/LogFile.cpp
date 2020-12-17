@@ -1358,3 +1358,27 @@ void AP_Logger::WriteQ_Upadate_Throttle_Hover(
 
     WriteBlock(&pkt, sizeof(pkt));
 }
+
+void AP_Logger::WriteQ_Takeoff_Controller(
+    int32_t log_nav_roll_cd,
+    int32_t log_nav_pitch_cd,
+    float log_pc_target_x,
+    float log_pc_target_y,
+    float log_speed_up,
+    float log_pilot_input_yaw_rate,
+    float log_weathervane_yaw_rate)
+{
+    struct log_QAUTO_11 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_11),
+        time_us : AP_HAL::micros64(),
+        nav_roll_cd : log_nav_roll_cd,
+        nav_pitch_cd : log_nav_pitch_cd,
+        pc_target_x : log_pc_target_x,
+        pc_target_y : log_pc_target_y,
+        speed_up : log_speed_up,
+        pilot_input_yaw_rate : log_pilot_input_yaw_rate,
+        weathervane_yaw_rate : log_weathervane_yaw_rate
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}
