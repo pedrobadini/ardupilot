@@ -1124,7 +1124,7 @@ void AP_Logger::WriteQ_Do_Vtol_Takeoff(
     uint32_t takeoff_time_limit_ms, 
     uint16_t nav_cmd)
 {   
-    /*
+    
     struct log_QAUTO_01 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_01),
         time_us : AP_HAL::micros64(),
@@ -1139,7 +1139,7 @@ void AP_Logger::WriteQ_Do_Vtol_Takeoff(
         nav_cmd : nav_cmd
     };
     WriteBlock(&pkt, sizeof(pkt));
-    */
+    
     
 }
 

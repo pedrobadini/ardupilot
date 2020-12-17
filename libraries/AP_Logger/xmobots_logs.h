@@ -52,7 +52,7 @@ struct PACKED log_QAUTO_00{
 //QAUT1 - LOG1 ==================================================================================
 #define LOG_QAUTO_01_BASE(struct_enum)\
       { (struct_enum), sizeof(log_QAUTO_01), "QAU1",\
-      "QiiiihhfIH","t,L,L,A,Alt,AccZ,VZ,CurrVZ,Tlmt,NavCmd","s---------","F000000000"}
+      "QiiiihhfIH","t,Lat,Long,A,Alt,AccZ,VZ,CurrVZ,Tlmt,NavCmd","s---------","F000000000"}
 
 struct PACKED log_QAUTO_01{
      LOG_PACKET_HEADER;
