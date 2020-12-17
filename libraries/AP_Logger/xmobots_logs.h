@@ -191,7 +191,7 @@ struct PACKED log_QAUTO_08{
 //QAUT9 - LOG9 ==================================================================================
 #define LOG_QAUTO_09_BASE(struct_enum)\
       { (struct_enum), sizeof(log_QAUTO_09), "QAU9",\
-      "QbBB","t,stgCond,StgBf,Stg","s---","F000"}
+      "QbBBBB","t,stgCond,StgBf,Stg,Asst,Vmode","s-----","F00000"}
 
 struct PACKED log_QAUTO_09{
      LOG_PACKET_HEADER;
@@ -199,5 +199,7 @@ struct PACKED log_QAUTO_09{
      int8_t flight_stage_condition;
      uint8_t flight_stage_bf;
      uint8_t flight_stage;
+     uint8_t assisted_flight;
+     uint8_t in_vtol_mode;
 };
 

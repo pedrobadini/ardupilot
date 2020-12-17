@@ -1316,14 +1316,18 @@ void AP_Logger::WriteQ_In_Vtol_Auto(
 void AP_Logger::WriteQ_Update_Flight_Stage(
     int8_t log_flight_stage_condition, 
     uint8_t log_flight_stage_bf, 
-    uint8_t log_flight_stage)
+    uint8_t log_flight_stage,
+    uint8_t log_in_assisted_flight,
+    uint8_t log_in_vtol_mode)
 {
     struct log_QAUTO_09 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_09),
         time_us : AP_HAL::micros64(),
         flight_stage_condition : log_flight_stage_condition,
         flight_stage_bf : log_flight_stage_bf,
-        flight_stage : log_flight_stage
+        flight_stage : log_flight_stage,
+        assisted_flight : log_in_assisted_flight,
+        in_vtol_mode : log_in_vtol_mode
     };
 
     WriteBlock(&pkt, sizeof(pkt));

@@ -27,7 +27,9 @@
 #define AUX_UPFLGTSTAGE AP::logger().WriteQ_Update_Flight_Stage(\
     log_flight_stage_condition,\
     log_flight_stage_bf,\
-    log_flight_stage)
+    log_flight_stage,\
+    log_in_assisted_flight,\
+    log_in_vtol_mode)
 
 #define SCHED_TASK(func, rate_hz, max_time_micros) SCHED_TASK_CLASS(Plane, &plane, func, rate_hz, max_time_micros)
 
@@ -523,6 +525,8 @@ void Plane::update_flight_stage(void)
 int8_t log_flight_stage_condition = -1;
 #if ACTIVE_LOG_QAUTO_09
     uint8_t log_flight_stage_bf = (uint8_t) flight_stage;
+    uint8_t log_in_assisted_flight = quadplane.in_assisted_flight();
+    uint8_t log_in_vtol_mode = quadplane.in_vtol_mode();
 #endif
     // Update the speed & height controller states
     if (auto_throttle_mode && !throttle_suppressed) {  

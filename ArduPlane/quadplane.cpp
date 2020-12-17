@@ -88,6 +88,17 @@
     log_is_vtol_takeoff,\
     log_is_vtol_land)
 
+#define ACTIVE_LOG_QAUTO_10 1
+
+#define AUX_UPDATE_THROTTLE_HOVER AP::logger().WriteQ_Upadate_Throttle_Hover(\
+    log_condition_two,\
+    log_condition_three,\
+    log_nav_cmd_id,\
+    log_vtol_loiter,\
+    log_is_vtol_takeoff,\
+    log_is_vtol_land)
+
+
 const AP_Param::GroupInfo QuadPlane::var_info[] = {
 
     // @Param: ENABLE
@@ -2220,6 +2231,17 @@ void QuadPlane::update_throttle_suppression(void)
 //  called at 100hz
 void QuadPlane::update_throttle_hover()
 {
+    //throttle,aspeed, get_z, labs,ahrs.aspstatment()
+//#define ACTIVE_LOG_QAUTO_10 1
+
+//#define AUX_UPDATE_THROTTLE_HOVER AP::logger().WriteQ_Upadate_Throttle_Hover(\
+//    log_condition_two,\
+//    log_condition_three,\
+//    log_nav_cmd_id,\
+//    log_vtol_loiter,\
+//    log_is_vtol_takeoff,\
+//    log_is_vtol_land)
+
     if (!available()) {
         return;
     }
