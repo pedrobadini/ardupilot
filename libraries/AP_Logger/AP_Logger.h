@@ -310,6 +310,8 @@ public:
     void WriteQ_Update(uint8_t in_vtol_mode, uint8_t transition_state_before, uint8_t transition_state, uint8_t available, uint8_t in_vtol_auto);
     void WriteQ_In_Vtol_Auto(uint8_t condition_two, uint8_t condition_three, uint16_t nav_cmd_id, uint8_t vtol_loiter, uint8_t is_vtol_takeoff, uint8_t is_vtol_land);
     void WriteQ_Update_Flight_Stage(int8_t log_flight_stage_condition, uint8_t log_flight_stage_bf, uint8_t log_flight_stage, uint8_t log_in_assisted_flight, uint8_t log_in_vtol_mode);
+    void WriteQ_Upadate_Throttle_Hover(float log_throttle, float log_aspeed, float log_get_z, int32_t log_roll_sensor,      int32_t log_picth_sensor, uint32_t log_now, uint8_t log_is_flying_vtol, uint8_t log_is_zero);
+
 
     // This structure provides information on the internal member data of a PID for logging purposes
     struct PID_Info {

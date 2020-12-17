@@ -1332,3 +1332,29 @@ void AP_Logger::WriteQ_Update_Flight_Stage(
 
     WriteBlock(&pkt, sizeof(pkt));
 }
+
+void AP_Logger::WriteQ_Upadate_Throttle_Hover(
+    float log_throttle,
+    float log_aspeed,
+    float log_get_z,
+    int32_t log_roll_sensor,     
+    int32_t log_picth_sensor,
+    uint32_t log_now,
+    uint8_t log_is_flying_vtol,
+    uint8_t log_is_zero)
+{
+    struct log_QAUTO_10 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_10),
+        time_us : AP_HAL::micros64(),
+        throttle : log_throttle,
+        aspeed : log_aspeed,
+        get_z : log_get_z,
+        roll_sensor : log_roll_sensor,     
+        picth_sensor : log_picth_sensor,
+        now : log_now,
+        is_flying_vtol : log_is_flying_vtol,
+        is_zero : log_is_zero
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}

@@ -91,12 +91,14 @@
 #define ACTIVE_LOG_QAUTO_10 1
 
 #define AUX_UPDATE_THROTTLE_HOVER AP::logger().WriteQ_Upadate_Throttle_Hover(\
-    log_condition_two,\
-    log_condition_three,\
-    log_nav_cmd_id,\
-    log_vtol_loiter,\
-    log_is_vtol_takeoff,\
-    log_is_vtol_land)
+    log_throttle,\
+    log_aspeed,\
+    log_get_z,\
+    log_roll_sensor,\
+    log_picth_sensor,\
+    log_now,\
+    log_is_flying_vtol,\
+    log_is_zero)
 
 
 const AP_Param::GroupInfo QuadPlane::var_info[] = {
@@ -2231,16 +2233,18 @@ void QuadPlane::update_throttle_suppression(void)
 //  called at 100hz
 void QuadPlane::update_throttle_hover()
 {
-    //throttle,aspeed, get_z, labs,ahrs.aspstatment()
-//#define ACTIVE_LOG_QAUTO_10 1
-
-//#define AUX_UPDATE_THROTTLE_HOVER AP::logger().WriteQ_Upadate_Throttle_Hover(\
-//    log_condition_two,\
-//    log_condition_three,\
-//    log_nav_cmd_id,\
-//    log_vtol_loiter,\
-//    log_is_vtol_takeoff,\
-//    log_is_vtol_land)
+#if ACTIVE_LOG_QAUTO_10
+    float log_throttle = motors->get_throttle();
+    float log_aspeed;
+    ahrs.airspeed_estimate(log_aspeed);
+    float log_get_z = inertial_nav.get_velocity_z();
+    int32_t log_roll_sensor = ahrs_view->roll_sensor;
+    int32_t log_picth_sensor = ahrs_view->pitch_sensor;
+    uint32_t log_now = AP_HAL::millis();
+    uint8_t log_is_flying_vtol = is_flying_vtol();
+    uint8_t log_is_zero = is_zero(pos_control->get_desired_velocity().z);
+    AUX_UPDATE_THROTTLE_HOVER;
+#endif 
 
     if (!available()) {
         return;

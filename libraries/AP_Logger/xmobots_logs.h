@@ -203,3 +203,21 @@ struct PACKED log_QAUTO_09{
      uint8_t in_vtol_mode;
 };
 
+
+//QAUT10 - LOG10 ==================================================================================
+#define LOG_QAUTO_10_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_10), "QA10",\
+      "QfffiiIBB","t,thr,asp,gZ,r_s,p_s,now,fvtol,is_0","s--------","F00000000"}
+
+struct PACKED log_QAUTO_10{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     float throttle;
+     float aspeed;
+     float get_z;
+     int32_t roll_sensor;     
+     int32_t picth_sensor;
+     uint32_t now;
+     uint8_t is_flying_vtol;
+     uint8_t is_zero;
+};
