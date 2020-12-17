@@ -238,3 +238,20 @@ struct PACKED log_QAUTO_11{
      float pilot_input_yaw_rate;
      float weathervane_yaw_rate;
 };
+
+//QAUT12 - LOG12 ==================================================================================
+#define LOG_QAUTO_12_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_12), "QA12",\
+      "QiiiiffB","t,nlat,nlon,nalt,oalt,difx,dify,if","s-------","F0000000"}
+
+struct PACKED log_QAUTO_12{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     int32_t next_lat;
+     int32_t next_lon;
+     int32_t next_alt;
+     int32_t origin_alt;
+     float diff_x;
+     float diff_y;
+     uint8_t enter_if;
+};

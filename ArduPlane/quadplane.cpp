@@ -111,6 +111,17 @@
     log_pilot_input_yaw_rate,\
     log_weathervane_yaw_rate)
 
+#define ACTIVE_LOG_QAUTO_12 1
+
+#define AUX_SET_TARGET_POSITION AP::logger().WriteQ_Setup_Target_Position(\
+    log_next_lat,\
+    log_next_lon,\
+    log_next_alt,\
+    log_origin_alt,\
+    log_diff_x,\
+    log_diff_y,\
+    log_enter_if)
+
 
 const AP_Param::GroupInfo QuadPlane::var_info[] = {
 
@@ -2790,6 +2801,9 @@ void QuadPlane::vtol_position_controller(void)
  */
 void QuadPlane::setup_target_position(void)
 {
+#if ACTIVE_LOG_QAUTO_12
+    uint8_t log_enter_if = 0;
+#endif 
     const Location &loc = plane.next_WP_loc;
     Location origin;
     if (!ahrs.get_origin(origin)) {
@@ -2808,6 +2822,11 @@ void QuadPlane::setup_target_position(void)
         now - last_loiter_ms > 500) {
         wp_nav->set_wp_destination(poscontrol.target);
         last_auto_target = loc;
+
+#if ACTIVE_LOG_QAUTO_12
+        log_enter_if = 1;
+#endif
+
     }
     last_loiter_ms = now;
     
@@ -2818,6 +2837,17 @@ void QuadPlane::setup_target_position(void)
     // setup horizontal speed and acceleration
     pos_control->set_max_speed_xy(wp_nav->get_default_speed_xy());
     pos_control->set_max_accel_xy(wp_nav->get_wp_acceleration());
+    
+#if ACTIVE_LOG_QAUTO_12
+    int32_t log_next_lat = plane.next_WP_loc.lat;
+    int32_t log_next_lon = plane.next_WP_loc.lng;
+    int32_t log_next_alt = plane.next_WP_loc.alt;
+    int32_t log_origin_alt = origin.alt;
+    float log_diff_x = diff2d.x;
+    float log_diff_y = diff2d.y;
+    AUX_SET_TARGET_POSITION;
+#endif
+
 }
 
 /*

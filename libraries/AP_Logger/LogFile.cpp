@@ -1382,3 +1382,27 @@ void AP_Logger::WriteQ_Takeoff_Controller(
 
     WriteBlock(&pkt, sizeof(pkt));
 }
+
+void AP_Logger::WriteQ_Setup_Target_Position(
+    int32_t log_next_lat,
+    int32_t log_next_lon,
+    int32_t log_next_alt,
+    int32_t log_origin_alt,
+    float log_diff_x,
+    float log_diff_y,
+    uint8_t log_enter_if)
+{
+    struct log_QAUTO_12 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_12),
+        time_us : AP_HAL::micros64(),
+        next_lat : log_next_lat,
+        next_lon : log_next_lon,
+        next_alt : log_next_alt,
+        origin_alt : log_origin_alt,
+        diff_x : log_diff_x,
+        diff_y : log_diff_y,
+        enter_if : log_enter_if
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}
