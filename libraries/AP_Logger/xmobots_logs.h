@@ -1,5 +1,33 @@
 //#ifndef XMOLOGS_H_
 //#define XMOLOGS_H_
+
+
+/*
+Format characters in the format string for binary log messages
+  a   : int16_t[32]
+  b   : int8_t
+  B   : uint8_t
+  h   : int16_t
+  H   : uint16_t
+  i   : int32_t
+  I   : uint32_t
+  f   : float
+  d   : double
+  n   : char[4]
+  N   : char[16]
+  Z   : char[64]
+  c   : int16_t * 100
+  C   : uint16_t * 100
+  e   : int32_t * 100
+  E   : uint32_t * 100
+  L   : int32_t latitude/longitude
+  M   : uint8_t flight mode
+  q   : int64_t
+  Q   : uint64_t
+ */
+
+
+
 /***********************************************************************
  * 
  *                  QAUTO LOG STRUCTURES AND DEFINES
@@ -39,6 +67,7 @@ struct PACKED log_QAUTO_01{
      uint32_t takeoff_time_limit_ms;
      uint16_t nav_cmd;
 };
+
 
 //QAUT2 - LOG2 ==================================================================================
 #define LOG_QAUTO_02_BASE(struct_enum)\
@@ -130,7 +159,7 @@ struct PACKED log_QAUTO_06{
 //QAUT7 - LOG7 ==================================================================================
 #define LOG_QAUTO_07_BASE(struct_enum)\
       { (struct_enum), sizeof(log_QAUTO_07), "QAU7",\
-      "QBBBBB","t,ivtol,ts_b,ts_a","s---","F000"}
+      "QBBBBB","t,ivtol,ts_b,ts_a,avai,ivtola", "s-----", "F00000"}
 
 struct PACKED log_QAUTO_07{
      LOG_PACKET_HEADER;

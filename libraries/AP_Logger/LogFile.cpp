@@ -1140,6 +1140,7 @@ void AP_Logger::WriteQ_Do_Vtol_Takeoff(
     };
     WriteBlock(&pkt, sizeof(pkt));
     */
+    
 }
 
 void AP_Logger::WriteQ_Verify_Vtol_Takeoff(
@@ -1273,7 +1274,7 @@ void AP_Logger::WriteQ_Update(
     uint8_t available,
     uint8_t in_vtol_auto)
 {
-    /*
+    
     
     struct log_QAUTO_07 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_07),
@@ -1286,7 +1287,7 @@ void AP_Logger::WriteQ_Update(
     };
 
     WriteBlock(&pkt, sizeof(pkt));
-    */
+    
 }
 
 

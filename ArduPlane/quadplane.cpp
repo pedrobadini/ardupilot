@@ -75,8 +75,8 @@
     log_in_vtol_mode,\
     log_transition_state_before,\
     log_transition_state,\
-    log_available,\
-    log_in_vtol_auto)
+    (uint8_t)log_available,\
+    (uint8_t)log_in_vtol_auto)
 
 #define ACTIVE_LOG_QAUTO_08 1
 
@@ -2027,8 +2027,8 @@ void QuadPlane::update(void)
     uint8_t log_in_vtol_mode = 255;
     uint8_t log_transition_state_before = transition_state;
     uint8_t log_transition_state = 255;
-    uint8_t log_available = 255;
-    uint8_t log_in_vtol_auto = 255;
+    bool log_available = false;
+    bool log_in_vtol_auto = false;
 #endif 
 
     if ((ahrs_view != NULL) && !is_equal(_last_ahrs_trim_pitch, ahrs_trim_pitch.get())) {
