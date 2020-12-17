@@ -1406,3 +1406,19 @@ void AP_Logger::WriteQ_Setup_Target_Position(
 
     WriteBlock(&pkt, sizeof(pkt));
 }
+
+void AP_Logger::WriteQ_Is_Flying_Vtol(
+    uint8_t log_get_spool_state,
+    uint8_t log_in_vtol_mode,
+    uint8_t log_enter_if)
+{
+    struct log_QAUTO_13 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_13),
+        time_us : AP_HAL::micros64(),
+        get_spool_state : log_get_spool_state,
+        in_vtol_mode : log_in_vtol_mode,
+        enter_if : log_enter_if
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}

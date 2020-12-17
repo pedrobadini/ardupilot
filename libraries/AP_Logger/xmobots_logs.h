@@ -255,3 +255,17 @@ struct PACKED log_QAUTO_12{
      float diff_y;
      uint8_t enter_if;
 };
+
+
+//QAUT13 - LOG13 ==================================================================================
+#define LOG_QAUTO_13_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_13), "QA13",\
+      "QBBB","t,spo_s,vtol,if","s---","F000"}
+
+struct PACKED log_QAUTO_13{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     uint8_t get_spool_state;
+     uint8_t in_vtol_mode;
+     uint8_t enter_if;
+};

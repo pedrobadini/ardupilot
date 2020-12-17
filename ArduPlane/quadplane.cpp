@@ -122,6 +122,13 @@
     log_diff_y,\
     log_enter_if)
 
+#define ACTIVE_LOG_QAUTO_13 1
+
+#define AUX_IS_FLYING_VTOL AP::logger().WriteQ_Is_Flying_Vtol(\
+    log_get_spool_state,\
+    log_in_vtol_mode,\
+    log_enter_if)
+
 
 const AP_Param::GroupInfo QuadPlane::var_info[] = {
 
@@ -1374,6 +1381,12 @@ bool QuadPlane::should_relax(void)
 // see if we are flying in vtol
 bool QuadPlane::is_flying_vtol(void) const
 {
+#if ACTIVE_LOG_QAUTO_13
+    uint8_t log_get_spool_state = (uint8_t) motors->get_spool_state();
+    uint8_t log_in_vtol_mode = in_vtol_mode();
+    uint8_t log_enter_if = (in_vtol_mode() && millis() - landing_detect.lower_limit_start_ms > 5000);
+    AUX_IS_FLYING_VTOL;
+#endif
     if (!available()) {
         return false;
     }
@@ -2837,7 +2850,7 @@ void QuadPlane::setup_target_position(void)
     // setup horizontal speed and acceleration
     pos_control->set_max_speed_xy(wp_nav->get_default_speed_xy());
     pos_control->set_max_accel_xy(wp_nav->get_wp_acceleration());
-    
+
 #if ACTIVE_LOG_QAUTO_12
     int32_t log_next_lat = plane.next_WP_loc.lat;
     int32_t log_next_lon = plane.next_WP_loc.lng;
