@@ -1333,6 +1333,7 @@ void AP_Logger::WriteQ_Update_Flight_Stage(
     WriteBlock(&pkt, sizeof(pkt));
 }
 
+
 void AP_Logger::WriteQ_Upadate_Throttle_Hover(
     float log_throttle,
     float log_aspeed,
@@ -1341,7 +1342,10 @@ void AP_Logger::WriteQ_Upadate_Throttle_Hover(
     int32_t log_picth_sensor,
     uint32_t log_now,
     uint8_t log_is_flying_vtol,
-    uint8_t log_is_zero)
+    uint8_t log_is_zero,
+    uint8_t log_available,
+    uint8_t log_armed,
+    int16_t log_fw_motor)
 {
     struct log_QAUTO_10 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_10),
@@ -1353,7 +1357,10 @@ void AP_Logger::WriteQ_Upadate_Throttle_Hover(
         picth_sensor : log_picth_sensor,
         now : log_now,
         is_flying_vtol : log_is_flying_vtol,
-        is_zero : log_is_zero
+        is_zero : log_is_zero,
+        available : log_available,
+        armed : log_armed,
+        fw_motor : log_fw_motor
     };
 
     WriteBlock(&pkt, sizeof(pkt));
@@ -1410,14 +1417,32 @@ void AP_Logger::WriteQ_Setup_Target_Position(
 void AP_Logger::WriteQ_Is_Flying_Vtol(
     uint8_t log_get_spool_state,
     uint8_t log_in_vtol_mode,
-    uint8_t log_enter_if)
+    uint8_t log_enter_if,
+    uint8_t log_available)
 {
     struct log_QAUTO_13 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_13),
         time_us : AP_HAL::micros64(),
         get_spool_state : log_get_spool_state,
         in_vtol_mode : log_in_vtol_mode,
-        enter_if : log_enter_if
+        enter_if : log_enter_if,
+        available : log_available
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}
+
+void AP_Logger::WriteQ_Update_Throttle_Hover1(
+    float log_throttle_hover_before,
+    float log_throttle_hover_after,
+    uint8_t log_throttle_hover_learn)
+{
+    struct log_QAUTO_14 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_14),
+        time_us : AP_HAL::micros64(),
+        throttle_hover_before : log_throttle_hover_before,
+        throttle_hover_after : log_throttle_hover_after,
+        throttle_hover_learn : log_throttle_hover_learn
     };
 
     WriteBlock(&pkt, sizeof(pkt));

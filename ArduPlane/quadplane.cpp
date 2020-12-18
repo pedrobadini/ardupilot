@@ -37,9 +37,9 @@
     log_next_alt,\
     log_poscontrol_state,\
     log_poscontrol_state_before,\
-    log_wp_distance,\
     (uint8_t)log_check_land_final,\
-    log_check_land_complete)
+    log_check_land_complete,\
+    log_wp_distance)
 
 #define ACTIVE_LOG_QAUTO_05 1
 
@@ -98,7 +98,10 @@
     log_picth_sensor,\
     log_now,\
     log_is_flying_vtol,\
-    log_is_zero)
+    log_is_zero,\
+    log_available,\
+    log_armed,\
+    log_fw_motor)
 
 #define ACTIVE_LOG_QAUTO_11 1
 
@@ -127,7 +130,8 @@
 #define AUX_IS_FLYING_VTOL AP::logger().WriteQ_Is_Flying_Vtol(\
     log_get_spool_state,\
     log_in_vtol_mode,\
-    log_enter_if)
+    log_enter_if,\
+    log_available)
 
 
 const AP_Param::GroupInfo QuadPlane::var_info[] = {
@@ -1382,6 +1386,7 @@ bool QuadPlane::should_relax(void)
 bool QuadPlane::is_flying_vtol(void) const
 {
 #if ACTIVE_LOG_QAUTO_13
+    uint8_t log_available = available();
     uint8_t log_get_spool_state = (uint8_t) motors->get_spool_state();
     uint8_t log_in_vtol_mode = in_vtol_mode();
     uint8_t log_enter_if = (in_vtol_mode() && millis() - landing_detect.lower_limit_start_ms > 5000);
@@ -2269,6 +2274,9 @@ void QuadPlane::update_throttle_suppression(void)
 void QuadPlane::update_throttle_hover()
 {
 #if ACTIVE_LOG_QAUTO_10
+    uint8_t log_available = available();
+    uint8_t log_armed = motors->armed();
+    int16_t log_fw_motor = SRV_Channels::get_output_scaled(SRV_Channel::k_throttle);
     float log_throttle = motors->get_throttle();
     float log_aspeed;
     ahrs.airspeed_estimate(log_aspeed);

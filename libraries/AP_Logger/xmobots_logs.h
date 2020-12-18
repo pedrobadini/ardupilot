@@ -207,7 +207,7 @@ struct PACKED log_QAUTO_09{
 //QAUT10 - LOG10 ==================================================================================
 #define LOG_QAUTO_10_BASE(struct_enum)\
       { (struct_enum), sizeof(log_QAUTO_10), "QA10",\
-      "QfffiiIBB","t,thr,asp,gZ,r_s,p_s,now,fvtol,is_0","s--------","F00000000"}
+      "QfffiiIBBBBh","t,thr,asp,gZ,r_s,p_s,now,fvtol,is_0,av,arm,fw_m","s-----------","F00000000000"}
 
 struct PACKED log_QAUTO_10{
      LOG_PACKET_HEADER;
@@ -220,8 +220,10 @@ struct PACKED log_QAUTO_10{
      uint32_t now;
      uint8_t is_flying_vtol;
      uint8_t is_zero;
+     uint8_t available;
+     uint8_t armed;
+     int16_t fw_motor;
 };
-
 //QAUT11 - LOG11 ==================================================================================
 #define LOG_QAUTO_11_BASE(struct_enum)\
       { (struct_enum), sizeof(log_QAUTO_11), "QA11",\
@@ -260,7 +262,7 @@ struct PACKED log_QAUTO_12{
 //QAUT13 - LOG13 ==================================================================================
 #define LOG_QAUTO_13_BASE(struct_enum)\
       { (struct_enum), sizeof(log_QAUTO_13), "QA13",\
-      "QBBB","t,spo_s,vtol,if","s---","F000"}
+      "QBBBB","t,spo_s,vtol,if,av","s----","F0000"}
 
 struct PACKED log_QAUTO_13{
      LOG_PACKET_HEADER;
@@ -268,4 +270,18 @@ struct PACKED log_QAUTO_13{
      uint8_t get_spool_state;
      uint8_t in_vtol_mode;
      uint8_t enter_if;
+     uint8_t available;
+};
+
+//QAUT14 - LOG14 ==================================================================================
+#define LOG_QAUTO_14_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_14), "QA14",\
+      "QffB","t,th_b,th_a,learn","s---","F000"}
+
+struct PACKED log_QAUTO_14{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     float throttle_hover_before;
+     float throttle_hover_after;
+     uint8_t throttle_hover_learn;
 };

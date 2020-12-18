@@ -17,6 +17,15 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_BattMonitor/AP_BattMonitor.h>
 
+#include <AP_Logger/AP_Logger.h>
+
+#define ACTIVE_LOG_QAUTO_14 1
+
+#define AUX_UPDATE_THROTTLE_HOVER1 AP::logger().WriteQ_Update_Throttle_Hover1(\
+    log_throttle_hover_before,\
+    log_throttle_hover_after,\
+    log_throttle_hover_learn)
+
 extern const AP_HAL::HAL& hal;
 
 // parameters for the motor class
@@ -524,10 +533,19 @@ void AP_MotorsMulticopter::set_throttle_range(int16_t radio_min, int16_t radio_m
 // update the throttle input filter.  should be called at 100hz
 void AP_MotorsMulticopter::update_throttle_hover(float dt)
 {
+#if ACTIVE_LOG_QAUTO_14
+    float log_throttle_hover_before = _throttle_hover;
+    uint8_t log_throttle_hover_learn = _throttle_hover_learn;
+#endif
+
     if (_throttle_hover_learn != HOVER_LEARN_DISABLED) {
         // we have chosen to constrain the hover throttle to be within the range reachable by the third order expo polynomial.
         _throttle_hover = constrain_float(_throttle_hover + (dt / (dt + AP_MOTORS_THST_HOVER_TC)) * (get_throttle() - _throttle_hover), AP_MOTORS_THST_HOVER_MIN, AP_MOTORS_THST_HOVER_MAX);
     }
+#if ACTIVE_LOG_QAUTO_14
+    float log_throttle_hover_after = _throttle_hover;
+    AUX_UPDATE_THROTTLE_HOVER1;
+#endif
 }
 
 // run spool logic

@@ -310,10 +310,11 @@ public:
     void WriteQ_Update(uint8_t in_vtol_mode, uint8_t transition_state_before, uint8_t transition_state, uint8_t available, uint8_t in_vtol_auto);
     void WriteQ_In_Vtol_Auto(uint8_t condition_two, uint8_t condition_three, uint16_t nav_cmd_id, uint8_t vtol_loiter, uint8_t is_vtol_takeoff, uint8_t is_vtol_land);
     void WriteQ_Update_Flight_Stage(int8_t log_flight_stage_condition, uint8_t log_flight_stage_bf, uint8_t log_flight_stage, uint8_t log_in_assisted_flight, uint8_t log_in_vtol_mode);
-    void WriteQ_Upadate_Throttle_Hover(float log_throttle, float log_aspeed, float log_get_z, int32_t log_roll_sensor,      int32_t log_picth_sensor, uint32_t log_now, uint8_t log_is_flying_vtol, uint8_t log_is_zero);
+    void WriteQ_Upadate_Throttle_Hover(float log_throttle, float log_aspeed, float log_get_z, int32_t log_roll_sensor,      int32_t log_picth_sensor, uint32_t log_now, uint8_t log_is_flying_vtol, uint8_t log_is_zero, uint8_t log_available, uint8_t log_armed, int16_t log_fw_motor);
     void WriteQ_Takeoff_Controller(int32_t log_nav_roll_cd, int32_t log_nav_pitch_cd, float log_pc_target_x, float log_pc_target_y, float log_speed_up, float log_pilot_input_yaw_rate, float log_weathervane_yaw_rate);
     void WriteQ_Setup_Target_Position(int32_t log_next_lat, int32_t log_next_lon, int32_t log_next_alt, int32_t log_origin_alt, float log_diff_x, float log_diff_y, uint8_t log_enter_if);
-    void WriteQ_Is_Flying_Vtol(uint8_t log_get_spool_state, uint8_t log_in_vtol_mode, uint8_t log_enter_if);
+    void WriteQ_Is_Flying_Vtol(uint8_t log_get_spool_state, uint8_t log_in_vtol_mode, uint8_t log_enter_if, uint8_t log_available);
+    void WriteQ_Update_Throttle_Hover1(float log_throttle_hover_before, float log_throttle_hover_after, uint8_t log_throttle_hover_learn);
 
 
     // This structure provides information on the internal member data of a PID for logging purposes
