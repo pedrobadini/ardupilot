@@ -2876,16 +2876,7 @@ void QuadPlane::setup_target_position(void)
  */
 void QuadPlane::takeoff_controller(void)
 {
-#if ACTIVE_LOG_QAUTO_11
-    int32_t log_nav_roll_cd = plane.nav_roll_cd;
-    int32_t log_nav_pitch_cd = plane.nav_pitch_cd;
-    float log_pc_target_x = poscontrol.target.x;
-    float log_pc_target_y = poscontrol.target.y;
-    float log_speed_up = wp_nav->get_default_speed_up();
-    float log_pilot_input_yaw_rate = get_pilot_input_yaw_rate_cds();
-    float log_weathervane_yaw_rate = get_weathervane_yaw_rate_cds();
-    AUX_TAKEOFF_CONTROLLER;
-#endif
+
     /*
       for takeoff we use the position controller
     */
@@ -2904,6 +2895,17 @@ void QuadPlane::takeoff_controller(void)
     // nav roll and pitch are controller by position controller
     plane.nav_roll_cd = pos_control->get_roll();
     plane.nav_pitch_cd = pos_control->get_pitch();
+
+#if ACTIVE_LOG_QAUTO_11
+    int32_t log_nav_roll_cd = plane.nav_roll_cd;
+    int32_t log_nav_pitch_cd = plane.nav_pitch_cd;
+    float log_pc_target_x = poscontrol.target.x;
+    float log_pc_target_y = poscontrol.target.y;
+    float log_speed_up = wp_nav->get_default_speed_up();
+    float log_pilot_input_yaw_rate = get_pilot_input_yaw_rate_cds();
+    float log_weathervane_yaw_rate = get_weathervane_yaw_rate_cds();
+    AUX_TAKEOFF_CONTROLLER;
+#endif
 
     attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(plane.nav_roll_cd,
                                                                   plane.nav_pitch_cd,
