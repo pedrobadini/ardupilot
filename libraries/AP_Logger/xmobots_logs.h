@@ -308,3 +308,37 @@ struct PACKED log_QAUTO_15{
      float dt;
      float postarget_z;
 };
+
+
+//QAUT16 - LOG16 ==================================================================================
+#define LOG_QAUTO_16_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_16), "QA16",\
+      "Qhhhhiib","t,rlc,plma,plmi,aa,nrc,npc,ret","s-------","F0000000"}
+
+struct PACKED log_QAUTO_16{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     int16_t roll_limit_cd;
+     int16_t pitch_limit_max_cd;
+     int16_t pitch_limit_min_cd;  
+     int16_t assist_angle;
+     int32_t nav_roll_cd;
+     int32_t nav_pitch_cd;
+     int8_t ret;
+};
+
+//QAUT17 - LOG17 ==================================================================================
+#define LOG_QAUTO_17_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_17), "QA17",\
+      "QBbhIif","t,atm,fbwc,thr_i,dtss,alt_e,cl_r","s------","F000000"}
+
+struct PACKED log_QAUTO_17{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     uint8_t auto_throttle_mode;
+     int8_t fbw_climb_rate;
+     int16_t throttle_input;
+     uint32_t dt_since_start;
+     int32_t altitude_error;
+     float climb_rate;
+};

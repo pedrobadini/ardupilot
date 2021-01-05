@@ -138,6 +138,27 @@
     log_enter_if,\
     log_available)
 
+#define ACTIVE_LOG_QAUTO_16 1
+
+#define AUX_ASSISTANCE_NEEDED AP::logger().WriteQ_Assistance_Needed(\
+    log_roll_limit_cd,\
+    log_pitch_limit_max_cd,\
+    log_pitch_limit_min_cd,\
+    log_assist_angle,\
+    log_nav_roll_cd,\
+    log_nav_pitch_cd,\
+    log_ret)
+
+#define ACTIVE_LOG_QAUTO_17 1
+
+#define AUX_ASSIST_CLIMB_RATE_CMS AP::logger().WriteQ_Assist_Climb_Rate_Cms(\
+    log_auto_throttle_mode,\
+    log_fbw_climb_rate,\
+    log_throttle_input,\
+    log_dt_since_start,\
+    log_altitude_error,\
+    log_climb_rate)
+
 
 const AP_Param::GroupInfo QuadPlane::var_info[] = {
 
@@ -1658,6 +1679,15 @@ float QuadPlane::assist_climb_rate_cms(void) const
     if (dt_since_start < ramp_up_time_ms) {
         climb_rate = linear_interpolate(0, climb_rate, dt_since_start, 0, ramp_up_time_ms);
     }
+#if ACTIVE_LOG_QAUTO_17
+    uint8_t log_auto_throttle_mode = plane.auto_throttle_mode;
+    int8_t log_fbw_climb_rate = plane.g.flybywire_climb_rate;
+    int16_t log_throttle_input = plane.get_throttle_input();
+    uint32_t log_dt_since_start = dt_since_start;
+    int32_t log_altitude_error = plane.altitude_error_cm;
+    float log_climb_rate = climb_rate;
+    AUX_ASSIST_CLIMB_RATE_CMS;
+#endif
     
     return climb_rate;
 }
@@ -1733,6 +1763,11 @@ bool QuadPlane::assistance_needed(float aspeed, bool have_airspeed)
     /*
       now check if we should provide assistance due to attitude error
      */
+#if ACTIVE_LOG_QAUTO_16
+    int16_t log_roll_limit_cd = plane.aparm.roll_limit_cd;
+    int16_t log_pitch_limit_max_cd = plane.aparm.pitch_limit_max_cd;
+    int16_t log_pitch_limit_min_cd = plane.aparm.pitch_limit_min_cd;
+#endif
 
     const uint16_t allowed_envelope_error_cd = 500U;
     if (labs(ahrs.roll_sensor) <= plane.aparm.roll_limit_cd+allowed_envelope_error_cd &&
@@ -1743,7 +1778,14 @@ bool QuadPlane::assistance_needed(float aspeed, bool have_airspeed)
         angle_error_start_ms = 0;
         return false;
     }
-    
+
+#if ACTIVE_LOG_QAUTO_16
+    int16_t log_assist_angle = assist_angle;
+    int32_t log_nav_roll_cd = plane.nav_roll_cd;
+    int32_t log_nav_pitch_cd = plane.nav_pitch_cd;
+    int8_t log_ret = -1;
+#endif
+
     int32_t max_angle_cd = 100U*assist_angle;
     if ((labs(ahrs.roll_sensor - plane.nav_roll_cd) < max_angle_cd &&
          labs(ahrs.pitch_sensor - plane.nav_pitch_cd) < max_angle_cd)) {
@@ -1763,6 +1805,12 @@ bool QuadPlane::assistance_needed(float aspeed, bool have_airspeed)
                                          (int)(ahrs.roll_sensor/100),
                                          (int)(ahrs.pitch_sensor/100));
     }
+
+#if ACTIVE_LOG_QAUTO_16
+    log_ret = ret;
+    AUX_ASSISTANCE_NEEDED;
+#endif
+
     return ret;
 }
 

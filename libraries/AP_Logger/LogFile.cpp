@@ -1482,3 +1482,51 @@ void AP_Logger::WriteQ_Set_Alt_Target(
 
     WriteBlock(&pkt, sizeof(pkt));
 }
+
+
+void AP_Logger::WriteQ_Assistance_Needed(
+    int16_t log_roll_limit_cd,
+    int16_t log_pitch_limit_max_cd,
+    int16_t log_pitch_limit_min_cd,  
+    int16_t log_assist_angle,
+    int32_t log_nav_roll_cd,
+    int32_t log_nav_pitch_cd,
+    int8_t log_ret)
+{
+    struct log_QAUTO_16 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_16),
+        time_us : AP_HAL::micros64(),
+        roll_limit_cd : log_roll_limit_cd,
+        pitch_limit_max_cd : log_pitch_limit_max_cd,
+        pitch_limit_min_cd : log_pitch_limit_min_cd,  
+        assist_angle : log_assist_angle,
+        nav_roll_cd : log_nav_roll_cd,
+        nav_pitch_cd : log_nav_pitch_cd,
+        ret : log_ret
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}
+
+
+void AP_Logger::WriteQ_Assist_Climb_Rate_Cms(
+    uint8_t log_auto_throttle_mode,
+    int8_t log_fbw_climb_rate,
+    int16_t log_throttle_input,
+    uint32_t log_dt_since_start,
+    int32_t log_altitude_error,
+    float log_climb_rate)
+{
+    struct log_QAUTO_17 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_17),
+        time_us : AP_HAL::micros64(),
+        auto_throttle_mode : log_auto_throttle_mode,
+        fbw_climb_rate : log_fbw_climb_rate,
+        throttle_input : log_throttle_input,
+        dt_since_start : log_dt_since_start,
+        altitude_error : log_altitude_error,
+        climb_rate : log_climb_rate
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}
