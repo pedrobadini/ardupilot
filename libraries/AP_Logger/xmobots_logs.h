@@ -244,7 +244,7 @@ struct PACKED log_QAUTO_11{
 //QAUT12 - LOG12 ==================================================================================
 #define LOG_QAUTO_12_BASE(struct_enum)\
       { (struct_enum), sizeof(log_QAUTO_12), "QA12",\
-      "QiiiiffB","t,nlat,nlon,nalt,oalt,difx,dify,if","s-------","F0000000"}
+      "QiiiiiiiiiffB","t,nlat,nlon,nalt,ola,oln,oat,pla,pln,palt,difx,dify,if","s------------","F000000000000"}
 
 struct PACKED log_QAUTO_12{
      LOG_PACKET_HEADER;
@@ -252,7 +252,12 @@ struct PACKED log_QAUTO_12{
      int32_t next_lat;
      int32_t next_lon;
      int32_t next_alt;
+     int32_t origin_lat;
+     int32_t origin_lng;
      int32_t origin_alt;
+     int32_t poscontrol_taget_x;
+     int32_t poscontrol_taget_y;
+     int32_t poscontrol_taget_z;
      float diff_x;
      float diff_y;
      uint8_t enter_if;

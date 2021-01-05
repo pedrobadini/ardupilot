@@ -120,7 +120,12 @@
     log_next_lat,\
     log_next_lon,\
     log_next_alt,\
+    log_origin_lat,\
+    log_origin_lng,\
     log_origin_alt,\
+    log_poscontrol_taget_x,\
+    log_poscontrol_taget_y,\
+    log_poscontrol_taget_z,\
     log_diff_x,\
     log_diff_y,\
     log_enter_if)
@@ -2863,7 +2868,12 @@ void QuadPlane::setup_target_position(void)
     int32_t log_next_lat = plane.next_WP_loc.lat;
     int32_t log_next_lon = plane.next_WP_loc.lng;
     int32_t log_next_alt = plane.next_WP_loc.alt;
+    int32_t log_origin_lat = origin.lat;
+    int32_t log_origin_lng = origin.lng;
     int32_t log_origin_alt = origin.alt;
+    int32_t log_poscontrol_taget_x = poscontrol.target.x;
+    int32_t log_poscontrol_taget_y = poscontrol.target.y;
+    int32_t log_poscontrol_taget_z = poscontrol.target.z;
     float log_diff_x = diff2d.x;
     float log_diff_y = diff2d.y;
     AUX_SET_TARGET_POSITION;
