@@ -2052,7 +2052,8 @@ LOG_STRUCTURE_FROM_NAVEKF3 \
     LOG_QAUTO_11_BASE(LOG_QAUTO_11),\
     LOG_QAUTO_12_BASE(LOG_QAUTO_12),\
     LOG_QAUTO_13_BASE(LOG_QAUTO_13),\
-    LOG_QAUTO_14_BASE(LOG_QAUTO_14)
+    LOG_QAUTO_14_BASE(LOG_QAUTO_14),\
+    LOG_QAUTO_15_BASE(LOG_QAUTO_15)
 
 // @LoggerMessage: SBPH
 // @Description: Swift Health Data
@@ -2200,6 +2201,7 @@ enum LogMessages : uint8_t {
     LOG_QAUTO_12,
     LOG_QAUTO_13,
     LOG_QAUTO_14,
+    LOG_QAUTO_15,
 #endif
 
     _LOG_LAST_MSG_

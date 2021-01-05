@@ -5,6 +5,17 @@
 
 extern const AP_HAL::HAL& hal;
 
+#define ACTIVE_LOG_QAUTO_15 1
+
+#define AUX_SET_ALT_TARGET AP::logger().WriteQ_Set_Alt_Target(\
+    log_force_descend,\
+    log_limit_pos_up,\
+    log_throttle_upper,\
+    log_throttle_lower,\
+    log_climb_rate,\
+    log_dt,\
+    log_postarget_z)
+
 #if APM_BUILD_TYPE(APM_BUILD_ArduPlane)
  // default gains for Plane
  # define POSCONTROL_POS_Z_P                    1.0f    // vertical position controller P gain default
@@ -347,6 +358,16 @@ void AC_PosControl::set_alt_target_from_climb_rate(float climb_rate_cms, float d
 {
     // adjust desired alt if motors have not hit their limits
     // To-Do: add check of _limit.pos_down?
+#if ACTIVE_LOG_QAUTO_15
+    uint8_t log_force_descend = force_descend;
+    uint8_t log_limit_pos_up = _limit.pos_up;
+    uint8_t log_throttle_upper = _motors.limit.throttle_upper;
+    uint8_t log_throttle_lower = _motors.limit.throttle_lower;
+    float log_climb_rate = climb_rate_cms;
+    float log_dt = dt;
+    float log_postarget_z = _pos_target.z;
+    AUX_SET_ALT_TARGET;
+#endif
     if ((climb_rate_cms < 0 && (!_motors.limit.throttle_lower || force_descend)) || (climb_rate_cms > 0 && !_motors.limit.throttle_upper && !_limit.pos_up)) {
         _pos_target.z += climb_rate_cms * dt;
     }

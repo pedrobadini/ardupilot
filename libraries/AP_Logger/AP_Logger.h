@@ -315,7 +315,7 @@ public:
     void WriteQ_Setup_Target_Position(int32_t log_next_lat, int32_t log_next_lon, int32_t log_next_alt, int32_t log_origin_alt, float log_diff_x, float log_diff_y, uint8_t log_enter_if);
     void WriteQ_Is_Flying_Vtol(uint8_t log_get_spool_state, uint8_t log_in_vtol_mode, uint8_t log_enter_if, uint8_t log_available);
     void WriteQ_Update_Throttle_Hover1(float log_throttle_hover_before, float log_throttle_hover_after, uint8_t log_throttle_hover_learn);
-
+    void WriteQ_Set_Alt_Target(uint8_t force_descend, uint8_t limit_pos_up, uint8_t throttle_upper, uint8_t throttle_lower, float climb_rate, float dt, float postarget_z);
 
     // This structure provides information on the internal member data of a PID for logging purposes
     struct PID_Info {

@@ -1447,3 +1447,28 @@ void AP_Logger::WriteQ_Update_Throttle_Hover1(
 
     WriteBlock(&pkt, sizeof(pkt));
 }
+
+
+void AP_Logger::WriteQ_Set_Alt_Target(
+    uint8_t log_force_descend,
+    uint8_t log_limit_pos_up,
+    uint8_t log_throttle_upper,
+    uint8_t log_throttle_lower,
+    float log_climb_rate,
+    float log_dt,
+    float log_postarget_z)
+{
+    struct log_QAUTO_15 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_QAUTO_15),
+        time_us : AP_HAL::micros64(),
+        force_descend : log_force_descend,
+        limit_pos_up : log_limit_pos_up,
+        throttle_upper : log_throttle_upper,
+        throttle_lower : log_throttle_lower,
+        climb_rate : log_climb_rate,
+        dt : log_dt,
+        postarget_z : log_postarget_z
+    };
+
+    WriteBlock(&pkt, sizeof(pkt));
+}

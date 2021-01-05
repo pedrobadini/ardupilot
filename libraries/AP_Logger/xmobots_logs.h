@@ -285,3 +285,21 @@ struct PACKED log_QAUTO_14{
      float throttle_hover_after;
      uint8_t throttle_hover_learn;
 };
+
+
+//QAUT15 - LOG15 ==================================================================================
+#define LOG_QAUTO_15_BASE(struct_enum)\
+      { (struct_enum), sizeof(log_QAUTO_15), "QA15",\
+      "QBBBBfff","t,fdes,pos_u,t_up,t_low,clim,dt,post","s-------","F0000000"}
+
+struct PACKED log_QAUTO_15{
+     LOG_PACKET_HEADER;
+     uint64_t time_us;
+     uint8_t force_descend;
+     uint8_t limit_pos_up;
+     uint8_t throttle_upper;
+     uint8_t throttle_lower;
+     float climb_rate;
+     float dt;
+     float postarget_z;
+};
