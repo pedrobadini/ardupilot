@@ -1149,6 +1149,15 @@ public:
     uint8_t log_qcontrol_auto_stage;
     uint8_t log_qupdate_transition;
     uint8_t log_qcheck_land_complete;
+    
+    /*    log QAUTO16    */
+    int16_t log_roll_limit_cd = 0xFFFF;
+    int16_t log_pitch_limit_max_cd = 0xFFFF;
+    int16_t log_pitch_limit_min_cd = 0xFFFF;
+    int16_t log_assist_angle = 0xFFFF;
+    int32_t log_nav_roll_cd = 0xFFFFFFFF;
+    int32_t log_nav_pitch_cd = 0xFFFFFFFF;
+    int8_t log_ret = -1;
 };
 
 extern Plane plane;

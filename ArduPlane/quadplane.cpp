@@ -141,13 +141,13 @@
 #define ACTIVE_LOG_QAUTO_16 1
 
 #define AUX_ASSISTANCE_NEEDED AP::logger().WriteQ_Assistance_Needed(\
-    log_roll_limit_cd,\
-    log_pitch_limit_max_cd,\
-    log_pitch_limit_min_cd,\
-    log_assist_angle,\
-    log_nav_roll_cd,\
-    log_nav_pitch_cd,\
-    log_ret)
+    plane.log_roll_limit_cd,\
+    plane.log_pitch_limit_max_cd,\
+    plane.log_pitch_limit_min_cd,\
+    plane.log_assist_angle,\
+    plane.log_nav_roll_cd,\
+    plane.log_nav_pitch_cd,\
+    plane.log_ret)
 
 #define ACTIVE_LOG_QAUTO_17 1
 
@@ -1713,6 +1713,16 @@ float QuadPlane::desired_auto_yaw_rate_cds(void) const
  */
 bool QuadPlane::assistance_needed(float aspeed, bool have_airspeed)
 {
+#if ACTIVE_LOG_QAUTO_16
+    plane.log_roll_limit_cd = 0xFFFF;
+    plane.log_pitch_limit_max_cd = 0xFFFF;
+    plane.log_pitch_limit_min_cd = 0xFFFF;
+    plane.log_assist_angle = 0xFFFF;
+    plane.log_nav_roll_cd = 0xFFFFFFFF;
+    plane.log_nav_pitch_cd = 0xFFFFFFFF;
+    plane.log_ret = -1;
+#endif
+
     if (assist_speed <= 0 || is_contol_surface_tailsitter()) {
         // assistance disabled
         in_angle_assist = false;
@@ -1764,9 +1774,9 @@ bool QuadPlane::assistance_needed(float aspeed, bool have_airspeed)
       now check if we should provide assistance due to attitude error
      */
 #if ACTIVE_LOG_QAUTO_16
-    int16_t log_roll_limit_cd = plane.aparm.roll_limit_cd;
-    int16_t log_pitch_limit_max_cd = plane.aparm.pitch_limit_max_cd;
-    int16_t log_pitch_limit_min_cd = plane.aparm.pitch_limit_min_cd;
+    plane.log_roll_limit_cd = plane.aparm.roll_limit_cd;
+    plane.log_pitch_limit_max_cd = plane.aparm.pitch_limit_max_cd;
+    plane.log_pitch_limit_min_cd = plane.aparm.pitch_limit_min_cd;
 #endif
 
     const uint16_t allowed_envelope_error_cd = 500U;
@@ -1780,10 +1790,9 @@ bool QuadPlane::assistance_needed(float aspeed, bool have_airspeed)
     }
 
 #if ACTIVE_LOG_QAUTO_16
-    int16_t log_assist_angle = assist_angle;
-    int32_t log_nav_roll_cd = plane.nav_roll_cd;
-    int32_t log_nav_pitch_cd = plane.nav_pitch_cd;
-    int8_t log_ret = -1;
+    plane.log_assist_angle = assist_angle;
+    plane.log_nav_roll_cd = plane.nav_roll_cd;
+    plane.log_nav_pitch_cd = plane.nav_pitch_cd;
 #endif
 
     int32_t max_angle_cd = 100U*assist_angle;
@@ -1807,8 +1816,7 @@ bool QuadPlane::assistance_needed(float aspeed, bool have_airspeed)
     }
 
 #if ACTIVE_LOG_QAUTO_16
-    log_ret = ret;
-    AUX_ASSISTANCE_NEEDED;
+    plane.log_ret = ret;
 #endif
 
     return ret;
@@ -1917,7 +1925,9 @@ void QuadPlane::update_transition(void)
         assisted_flight = false;
         plane.log_qupdate_transition = 9;
     }
-
+#if ACTIVE_LOG_QAUTO_16
+    AUX_ASSISTANCE_NEEDED;
+#endif
     if (is_tailsitter()) {
         if (transition_state == TRANSITION_ANGLE_WAIT_FW &&
             tailsitter_transition_fw_complete()) {
