@@ -305,9 +305,9 @@ public:
     void WriteQ_Verify_Vtol_Takeoff(uint8_t vtol_available, uint8_t takeoff_time_limit, uint8_t excessive_wind, uint8_t reached_alt);
     void WriteQ_Do_Vtol_Land(int32_t next_lat, int32_t next_lon, int32_t next_alt, uint8_t poscontrol_state);
     void WriteQ_Verify_Vtol_Land(int32_t next_lat, int32_t next_lon, int32_t next_alt, uint8_t poscontrol_state, uint8_t poscontrol_state_before, uint8_t check_land_final, uint8_t check_land_complete, float wp_distance);
-    void WriteQ_Update_Transition(uint8_t update_transition, uint8_t transition_state0, uint8_t transition_state1, uint8_t transition_state2, uint8_t have_airspeed, uint32_t transition_low_airspeed_ms0, uint32_t transition_low_airspeed_ms1, float aspeed, float climb_rate_cms, float ahrs_get_gyro_z0, float ahrs_get_gyro_z1, float last_throttle0, float last_throttle1, float trans_time_ms, float transition_scale, uint32_t ap_hal_now);
+    void WriteQ_Update_Transition(uint8_t update_transition, uint8_t transition_state0, uint8_t transition_state1, uint8_t transition_state2, uint8_t have_airspeed, uint32_t transition_low_airspeed_ms0, uint32_t transition_low_airspeed_ms1, float aspeed, float climb_rate_cms, float ahrs_get_gyro_z0, float ahrs_get_gyro_z1, float last_throttle0, float last_throttle1, float trans_time_ms, float transition_scale, float throttle_scaled);
     void WriteQ_Desired_Yaw_Rate_Cds(uint8_t assited_flight, float desired_auto_yaw_rate_cds, float get_pilot_input_yaw_rate_cds, float get_weathervane_yaw_rate_cds);
-    void WriteQ_Update(uint8_t in_vtol_mode, uint8_t transition_state_before, uint8_t transition_state, uint8_t available, uint8_t in_vtol_auto);
+    void WriteQ_Update(uint8_t in_vtol_mode, uint8_t transition_state_before, uint8_t transition_state, uint8_t available, uint8_t in_vtol_auto, uint8_t desired_spoolstate_af);
     void WriteQ_In_Vtol_Auto(uint8_t condition_two, uint8_t condition_three, uint16_t nav_cmd_id, uint8_t vtol_loiter, uint8_t is_vtol_takeoff, uint8_t is_vtol_land);
     void WriteQ_Update_Flight_Stage(int8_t log_flight_stage_condition, uint8_t log_flight_stage_bf, uint8_t log_flight_stage, uint8_t log_in_assisted_flight, uint8_t log_in_vtol_mode);
     void WriteQ_Upadate_Throttle_Hover(float log_throttle, float log_aspeed, float log_get_z, int32_t log_roll_sensor,      int32_t log_picth_sensor, uint32_t log_now, uint8_t log_is_flying_vtol, uint8_t log_is_zero, uint8_t log_available, uint8_t log_armed, int16_t log_fw_motor);
@@ -316,7 +316,7 @@ public:
     void WriteQ_Is_Flying_Vtol(uint8_t log_get_spool_state, uint8_t log_in_vtol_mode, uint8_t log_enter_if, uint8_t log_available);
     void WriteQ_Update_Throttle_Hover1(float log_throttle_hover_before, float log_throttle_hover_after, uint8_t log_throttle_hover_learn);
     void WriteQ_Set_Alt_Target(uint8_t force_descend, uint8_t limit_pos_up, uint8_t throttle_upper, uint8_t throttle_lower, float climb_rate, float dt, float postarget_z);
-    void WriteQ_Assistance_Needed(int16_t log_roll_limit_cd, int16_t log_pitch_limit_max_cd, int16_t log_pitch_limit_min_cd,   int16_t log_assist_angle, int32_t log_nav_roll_cd, int32_t log_nav_pitch_cd, int8_t log_ret);
+    void WriteQ_Assistance_Needed(int16_t log_roll_limit_cd, int16_t log_pitch_limit_max_cd, int16_t log_pitch_limit_min_cd,   int16_t log_assist_angle, int32_t log_nav_roll_cd, int32_t log_nav_pitch_cd, int8_t log_ret, int8_t log_is_assistance_needed);
     void WriteQ_Assist_Climb_Rate_Cms(uint8_t log_auto_throttle_mode, int8_t log_fbw_climb_rate, int16_t log_throttle_input, uint32_t log_dt_since_start, int32_t log_altitude_error, float log_climb_rate);
 
     // This structure provides information on the internal member data of a PID for logging purposes

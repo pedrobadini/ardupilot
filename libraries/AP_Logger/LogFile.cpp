@@ -1224,7 +1224,7 @@ void AP_Logger::WriteQ_Update_Transition(
     float last_throttle1,
     float trans_time_ms,
     float transition_scale,
-    uint32_t ap_hal_now)
+    float throttle_scaled)
 {
     struct log_QAUTO_05 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_05),
@@ -1243,7 +1243,7 @@ void AP_Logger::WriteQ_Update_Transition(
         last_throttle1 : last_throttle1,
         trans_time_ms : trans_time_ms,
         transition_scale : transition_scale,
-        ap_hal_now : ap_hal_now
+        throttle_scaled : throttle_scaled
     };
 
     WriteBlock(&pkt, sizeof(pkt));
@@ -1272,7 +1272,8 @@ void AP_Logger::WriteQ_Update(
     uint8_t transition_state_before,
     uint8_t transition_state,
     uint8_t available,
-    uint8_t in_vtol_auto)
+    uint8_t in_vtol_auto,
+    uint8_t desired_spoolstate_af)
 {
     
     
@@ -1283,7 +1284,8 @@ void AP_Logger::WriteQ_Update(
         log_transition_state_before : transition_state_before,
         log_transition_state : transition_state,
         log_available : available,
-        log_in_vtol_auto : in_vtol_auto
+        log_in_vtol_auto : in_vtol_auto,
+        des_ss_af : desired_spoolstate_af
     };
 
     WriteBlock(&pkt, sizeof(pkt));
@@ -1491,7 +1493,8 @@ void AP_Logger::WriteQ_Assistance_Needed(
     int16_t log_assist_angle,
     int32_t log_nav_roll_cd,
     int32_t log_nav_pitch_cd,
-    int8_t log_ret)
+    int8_t log_ret,
+    int8_t log_is_assistance_needed)
 {
     struct log_QAUTO_16 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_QAUTO_16),
@@ -1502,7 +1505,8 @@ void AP_Logger::WriteQ_Assistance_Needed(
         assist_angle : log_assist_angle,
         nav_roll_cd : log_nav_roll_cd,
         nav_pitch_cd : log_nav_pitch_cd,
-        ret : log_ret
+        ret : log_ret,
+        needed : log_is_assistance_needed
     };
 
     WriteBlock(&pkt, sizeof(pkt));

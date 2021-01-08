@@ -59,7 +59,7 @@
     log_last_throttle1,\
     log_trans_time_ms,\
     log_transition_scale,\
-    log_now)
+    log_throttle_scaled)
 
 #define ACTIVE_LOG_QAUTO_06 1
 
@@ -76,7 +76,8 @@
     log_transition_state_before,\
     log_transition_state,\
     (uint8_t)log_available,\
-    (uint8_t)log_in_vtol_auto)
+    (uint8_t)log_in_vtol_auto,\
+    log_desired_spoolstate_af)
 
 #define ACTIVE_LOG_QAUTO_08 1
 
@@ -147,7 +148,8 @@
     plane.log_assist_angle,\
     plane.log_nav_roll_cd,\
     plane.log_nav_pitch_cd,\
-    plane.log_ret)
+    plane.log_ret,\
+    log_is_assistance_needed)
 
 #define ACTIVE_LOG_QAUTO_17 1
 
@@ -1833,7 +1835,7 @@ void QuadPlane::update_transition(void)
     uint8_t log_transition_state0_= transition_state;
     uint8_t log_transition_state1_ = 255;
     uint8_t log_have_airspeed_ = 255;
-    uint32_t log_now = 4294967295;
+    //uint32_t log_now = 4294967295;
     uint32_t log_transition_low_airspeed_ms0_ = 4294967295;
     uint32_t log_transition_low_airspeed_ms1_ = 4294967295;
     float log_aspeed_ = -1;
@@ -1844,6 +1846,7 @@ void QuadPlane::update_transition(void)
     float log_last_throttle1_ = -1;
     float log_trans_time_ms_ = -1;
     float log_transition_scale_ = -1;
+    float log_throttle_scaled_ = -1;
 #endif
     
     plane.log_qupdate_transition = 0;
@@ -1895,8 +1898,10 @@ void QuadPlane::update_transition(void)
     /*
       see if we should provide some assistance
      */
+    bool isAssistanceNeeded = assistance_needed(aspeed, have_airspeed);
+
     if (have_airspeed &&
-        assistance_needed(aspeed, have_airspeed) &&
+        isAssistanceNeeded &&
         !is_tailsitter() &&
         hal.util->get_soft_armed() &&
         ((plane.auto_throttle_mode && !plane.throttle_suppressed) ||
@@ -1920,6 +1925,7 @@ void QuadPlane::update_transition(void)
         plane.log_qupdate_transition = 9;
     }
 #if ACTIVE_LOG_QAUTO_16
+    int8_t log_is_assistance_needed = isAssistanceNeeded;
     AUX_ASSISTANCE_NEEDED;
 #endif
     if (is_tailsitter()) {
@@ -2041,11 +2047,12 @@ void QuadPlane::update_transition(void)
         //pedido: logar transition_low_airspeed_ms, now, trans_time_ms, transition_scale, last_throttle e ahrs.get_gyro().z nessa linha
 #if ACTIVE_LOG_QAUTO_05
         log_transition_low_airspeed_ms1_ = transition_low_airspeed_ms;
-        log_now = now;
+        //log_now = now;
         log_ahrs_get_gyro_z1_ = ahrs.get_gyro().z;
         log_trans_time_ms_ = trans_time_ms;
         log_transition_scale_ = transition_scale;
         log_last_throttle1_ = last_throttle;
+        log_throttle_scaled_ = throttle_scaled;
 #endif
 
         // set zero throttle mix, to give full authority to
@@ -2119,6 +2126,7 @@ void QuadPlane::update_transition(void)
     float log_last_throttle1 = log_last_throttle1_;
     float log_trans_time_ms = log_trans_time_ms_;
     float log_transition_scale = log_transition_scale_;
+    float log_throttle_scaled = log_throttle_scaled_;
     AUX_UPDATE_TRANSITION;
 #endif    
 
@@ -2137,6 +2145,7 @@ void QuadPlane::update(void)
     uint8_t log_in_vtol_mode = 255;
     uint8_t log_transition_state_before = transition_state;
     uint8_t log_transition_state = 255;
+    uint8_t log_desired_spoolstate_af = 255;
     bool log_available = false;
     bool log_in_vtol_auto = false;
 #endif 
@@ -2187,6 +2196,11 @@ void QuadPlane::update(void)
         log_in_vtol_mode = 0;
 #endif
         update_transition();
+
+#if ACTIVE_LOG_QAUTO_07
+        log_desired_spoolstate_af = (uint8_t) motors->get_desired_spool_state();
+#endif
+
     } else {
         const uint32_t now = AP_HAL::millis();
 
@@ -2198,6 +2212,9 @@ void QuadPlane::update(void)
 
         // output to motors
         motors_output();
+#if ACTIVE_LOG_QAUTO_07
+        log_desired_spoolstate_af = (uint8_t) motors->get_desired_spool_state();
+#endif
 
         if (now - last_vtol_mode_ms > 1000 && is_tailsitter()) {
             /*
