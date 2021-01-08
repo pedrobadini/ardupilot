@@ -2,6 +2,7 @@
 
 #include <AP_Common/AP_Common.h>
 
+#define SHOULD_LOG_LOITER 1
 #define SHOULD_LOG_QAUTO 1
 // if you add any new types, units or multipliers, please update README.md
 
@@ -2038,6 +2039,9 @@ LOG_STRUCTURE_FROM_NAVEKF3 \
       "WINC", "QBBBBBfffHfb", "TimeUS,Heal,ThEnd,Mov,Clut,Mode,DLen,Len,DRate,Tens,Vcc,Temp", "s-----mmn?vO", "F-----000000" }, \
     { LOG_PSC_MSG, sizeof(log_PSC), \
       "PSC", "Qffffffffffff", "TimeUS,TPX,TPY,PX,PY,TVX,TVY,VX,VY,TAX,TAY,AX,AY", "smmmmnnnnoooo", "F000000000000" },\
+    LOG_LTR_7_BASE(LOG_LOITER_7),\
+    LOG_LTR_8_BASE(LOG_LOITER_8),\
+    LOG_LTR_9_BASE(LOG_LOITER_9),\
     LOG_QAUTO_00_BASE(LOG_QAUTO_00),\
     LOG_QAUTO_01_BASE(LOG_QAUTO_01),\
     LOG_QAUTO_02_BASE(LOG_QAUTO_02),\
@@ -2186,6 +2190,12 @@ enum LogMessages : uint8_t {
     LOG_SIMPLE_AVOID_MSG,
     LOG_WINCH_MSG,
     LOG_PSC_MSG,
+
+#if SHOULD_LOG_LOITER
+    LOG_LOITER_7,
+    LOG_LOITER_8,
+    LOG_LOITER_9,
+#endif
 
 #if SHOULD_LOG_QAUTO
     LOG_QAUTO_00,

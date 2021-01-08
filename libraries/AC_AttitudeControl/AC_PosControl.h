@@ -11,6 +11,7 @@
 #include "AC_AttitudeControl.h" // Attitude control library
 #include <AP_Motors/AP_Motors.h>          // motors library
 #include <AP_Vehicle/AP_Vehicle.h>         // common vehicle parameters
+#include <AP_Logger/AP_Logger.h>
 
 
 // position controller default definitions
@@ -429,4 +430,7 @@ protected:
 
     // high vibration handling
     bool        _vibe_comp_enabled;     // true when high vibration compensation is on
+
+    // Log structs
+    run_z_controller_log RunZControllerLog;
 };

@@ -26,6 +26,60 @@ Format characters in the format string for binary log messages
   Q   : uint64_t
  */
 
+
+/***********************************************************************
+ * 
+ *                  LOITER LOG STRUCTURES AND DEFINES
+ * 
+************************************************************************/
+
+#define LOG_LTR_7_BASE(struct_enum) { (struct_enum), sizeof(log_LOITER_7), "LTR7", "QBffffffff","tUS,tout,currAlt,posT,lUp,lDwn,AccCms,VelT,SpdDcms,SpdUcms","s---------","F000000000"}
+#define LOG_LTR_8_BASE(struct_enum) { (struct_enum), sizeof(log_LOITER_8), "LTR8", "HffffHfH", "dVff,Vdz,Vx,Vy,Vz,rstRaToAcc,Vlstz,freeze", "--------", "00000000"}
+#define LOG_LTR_9_BASE(struct_enum) { (struct_enum), sizeof(log_LOITER_9), "LTR9", "fffBBBBffff", "AccDz,AccEfz,ThrH,Vib,thrLw,thrUp,Rst,ThrO,ThrPid,VErr,ATar", "-----------", "00000000000"}
+    
+
+struct PACKED log_LOITER_7{
+  LOG_PACKET_HEADER;
+  uint64_t time_us;
+  uint8_t timeout_rst;
+  float curr_alt;
+  float pos_t_z;
+  float leash_up_z;
+  float leash_dwn_z;
+  float accel_z_cms;
+  float vel_target_z;
+  float spd_dwn_cms;
+  float spd_up_cms;
+};
+
+struct PACKED log_LOITER_8{
+  LOG_PACKET_HEADER;
+  uint16_t desvel_ff_z;
+  float vel_des_z;
+  float curr_vel_x;
+  float curr_vel_y;
+  float curr_vel_z;
+  uint16_t reset_rate_to_accel_z;
+  float vel_last_z;
+  uint16_t freeze_ff_z;
+};
+
+struct PACKED log_LOITER_9{
+  LOG_PACKET_HEADER;
+  float accel_des_z;
+  float accel_ef_z;
+  float mtr_thr_hover;
+  uint8_t vibe_comp_enabled;
+  uint8_t throttle_lower;
+  uint8_t throttle_upper;
+  uint8_t pid_rst_filt;
+  float thr_out;
+  float thr_out_pid;
+  float vel_error_z;
+  float acc_tar_z;
+};
+
+
 /***********************************************************************
  * 
  *                  QAUTO LOG STRUCTURES AND DEFINES

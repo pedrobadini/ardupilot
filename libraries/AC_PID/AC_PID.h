@@ -82,6 +82,7 @@ public:
     float get_filt_T_alpha() const;
     float get_filt_E_alpha() const;
     float get_filt_D_alpha() const;
+    uint8_t get_flag_reset_filter(){ return _flags._reset_filter; }
 
     // set accessors
     void kP(const float v) { _kp.set(v); }

@@ -530,6 +530,7 @@ bool AC_PosControl::is_active_z() const
 /// update_z_controller - fly to altitude in cm above home
 void AC_PosControl::update_z_controller()
 {
+    RunZControllerLog.timeout_reset = 0;
     // check time since last cast
     const uint64_t now_us = AP_HAL::micros64();
     if (now_us - _last_update_z_us > POSCONTROL_ACTIVE_TIMEOUT_US) {
@@ -537,6 +538,7 @@ void AC_PosControl::update_z_controller()
         _pid_accel_z.set_integrator((_attitude_control.get_throttle_in() - _motors.get_throttle_hover()) * 1000.0f);
         _accel_target.z = -(_ahrs.get_accel_ef_blended().z + GRAVITY_MSS) * 100.0f;
         _pid_accel_z.reset_filter();
+        RunZControllerLog.timeout_reset = 1;
     }
     _last_update_z_us = now_us;
 
@@ -548,6 +550,7 @@ void AC_PosControl::update_z_controller()
 
     // call z-axis position controller
     run_z_controller();
+    AP::logger().Write_LOITER_ZController(RunZControllerLog);
 }
 
 /// calc_leash_length - calculates the vertical leash lengths from maximum speed, acceleration
@@ -568,6 +571,7 @@ void AC_PosControl::calc_leash_length_z()
 void AC_PosControl::run_z_controller()
 {
     float curr_alt = _inav.get_altitude();
+    RunZControllerLog.curr_alt_log = curr_alt;
 
     // clear position limit flags
     _limit.pos_up = false;
@@ -575,8 +579,10 @@ void AC_PosControl::run_z_controller()
 
     // calculate altitude error
     _pos_error.z = _pos_target.z - curr_alt;
-
+    RunZControllerLog.pos_t_z_log = _pos_target.z;
     // do not let target altitude get too far from current altitude
+    RunZControllerLog.leash_up_z_log = _leash_up_z;
+    RunZControllerLog.leash_dwn_z_log = _leash_down_z;
     if (_pos_error.z > _leash_up_z) {
         _pos_target.z = curr_alt + _leash_up_z;
         _pos_error.z = _leash_up_z;
@@ -590,7 +596,8 @@ void AC_PosControl::run_z_controller()
 
     // calculate _vel_target.z using from _pos_error.z using sqrt controller
     _vel_target.z = AC_AttitudeControl::sqrt_controller(_pos_error.z, _p_pos_z.kP(), _accel_z_cms, _dt);
-
+    RunZControllerLog.accel_z_cms_log = _accel_z_cms;
+    RunZControllerLog.vel_target_z_log = _vel_target.z;
     // check speed limits
     // To-Do: check these speed limits here or in the pos->rate controller
     _limit.vel_up = false;
@@ -609,15 +616,24 @@ void AC_PosControl::run_z_controller()
         _vel_target.z += _vel_desired.z;
     }
 
+    RunZControllerLog.spd_dwn_cms_log = _speed_down_cms;
+    RunZControllerLog.spd_up_cms_log  = _speed_up_cms;
+    RunZControllerLog.desvel_ff_z_log = _flags.use_desvel_ff_z;
+    RunZControllerLog.vel_des_z_log   = _vel_desired.z;
+
     // the following section calculates acceleration required to achieve the velocity target
 
     const Vector3f& curr_vel = _inav.get_velocity();
+    RunZControllerLog.curr_vel_log = curr_vel;
 
     // TODO: remove velocity derivative calculation
     // reset last velocity target to current target
     if (_flags.reset_rate_to_accel_z) {
         _vel_last.z = _vel_target.z;
     }
+    RunZControllerLog.reset_rate_to_accel_z_log = _flags.reset_rate_to_accel_z;
+    RunZControllerLog.freeze_ff_z_log = _flags.freeze_ff_z;
+    RunZControllerLog.vel_last_z_log = _vel_last.z;
 
     // feed forward desired acceleration calculation
     if (_dt > 0.0f) {
@@ -631,6 +647,7 @@ void AC_PosControl::run_z_controller()
         _accel_desired.z = 0.0f;
     }
 
+    RunZControllerLog.accel_des_z_log = _accel_desired.z;
     // store this iteration's velocities for the next iteration
     _vel_last.z = _vel_target.z;
 
@@ -644,7 +661,7 @@ void AC_PosControl::run_z_controller()
         // calculate rate error and filter with cut off frequency of 2 Hz
         _vel_error.z = _vel_error_filter.apply(_vel_target.z - curr_vel.z, _dt);
     }
-
+    RunZControllerLog.vel_error_z = _vel_error.z;
     _accel_target.z = _p_vel_z.get_p(_vel_error.z);
 
     _accel_target.z += _accel_desired.z;
@@ -655,11 +672,13 @@ void AC_PosControl::run_z_controller()
 
     // Calculate Earth Frame Z acceleration
     z_accel_meas = -(_ahrs.get_accel_ef_blended().z + GRAVITY_MSS) * 100.0f;
-
+    RunZControllerLog.accel_ef_z_log = _ahrs.get_accel_ef_blended().z;
     // ensure imax is always large enough to overpower hover throttle
     if (_motors.get_throttle_hover() * 1000.0f > _pid_accel_z.imax()) {
         _pid_accel_z.imax(_motors.get_throttle_hover() * 1000.0f);
     }
+    RunZControllerLog.mtr_thr_hover_log = _motors.get_throttle_hover();
+    RunZControllerLog.vibe_comp_enabled_log = _vibe_comp_enabled;
 
     float thr_out;
     if (_vibe_comp_enabled) {
@@ -673,9 +692,16 @@ void AC_PosControl::run_z_controller()
         }
         thr_out = POSCONTROL_VIBE_COMP_P_GAIN * thr_per_accelz_cmss * _accel_target.z + _pid_accel_z.get_i() * 0.001f;
     } else {
+        RunZControllerLog.pid_reset_filter = _pid_accel_z.get_flag_reset_filter();
+        RunZControllerLog.accel_target_z = _accel_target.z;
         thr_out = _pid_accel_z.update_all(_accel_target.z, z_accel_meas, (_motors.limit.throttle_lower || _motors.limit.throttle_upper)) * 0.001f;
+        RunZControllerLog.thr_out_pid = thr_out;
     }
     thr_out += _motors.get_throttle_hover();
+
+    RunZControllerLog.throttle_lower_log = _motors.limit.throttle_lower;
+    RunZControllerLog.throttle_upper_log = _motors.limit.throttle_upper;
+    RunZControllerLog.thr_out_log = thr_out;
 
     // send throttle to attitude controller with angle boost
     _attitude_control.set_throttle_out(thr_out, true, POSCONTROL_THROTTLE_CUTOFF_FREQ);

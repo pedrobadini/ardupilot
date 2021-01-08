@@ -1092,6 +1092,54 @@ void AP_Logger::Write_PSC(const Vector3f &pos_target, const Vector3f &position, 
     WriteBlock(&pkt, sizeof(pkt));
 }
 
+void AP_Logger::Write_LOITER_ZController(run_z_controller_log& RunZControllerLog){
+#if SHOULD_LOG_LOITER
+    struct log_LOITER_7 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_LOITER_7),
+        time_us             : AP_HAL::micros64(),
+        timeout_rst         : RunZControllerLog.timeout_reset,
+        curr_alt            : RunZControllerLog.curr_alt_log,
+        pos_t_z             : RunZControllerLog.pos_t_z_log,
+        leash_up_z          : RunZControllerLog.leash_up_z_log,
+        leash_dwn_z         : RunZControllerLog.leash_dwn_z_log,
+        accel_z_cms         : RunZControllerLog.accel_z_cms_log,
+        vel_target_z        : RunZControllerLog.vel_target_z_log,
+        spd_dwn_cms         : RunZControllerLog.spd_dwn_cms_log,
+        spd_up_cms          : RunZControllerLog.spd_up_cms_log
+    };
+    WriteBlock(&pkt,sizeof(pkt));
+
+    struct log_LOITER_8 pkt1 = {
+        LOG_PACKET_HEADER_INIT(LOG_LOITER_8),
+        desvel_ff_z           : RunZControllerLog.desvel_ff_z_log,
+        vel_des_z             : RunZControllerLog.vel_des_z_log,
+        curr_vel_x            : RunZControllerLog.curr_vel_log.x,
+        curr_vel_y            : RunZControllerLog.curr_vel_log.y,
+        curr_vel_z            : RunZControllerLog.curr_vel_log.z,
+        reset_rate_to_accel_z : RunZControllerLog.reset_rate_to_accel_z_log,
+        vel_last_z            : RunZControllerLog.vel_last_z_log,
+        freeze_ff_z           : RunZControllerLog.freeze_ff_z_log
+    };
+    WriteBlock(&pkt1,sizeof(pkt1));
+
+    struct log_LOITER_9 pkt2 = {
+        LOG_PACKET_HEADER_INIT(LOG_LOITER_9),
+        accel_des_z           : RunZControllerLog.accel_des_z_log,
+        accel_ef_z            : RunZControllerLog.accel_ef_z_log,
+        mtr_thr_hover         : RunZControllerLog.mtr_thr_hover_log,
+        vibe_comp_enabled     : RunZControllerLog.vibe_comp_enabled_log,
+        throttle_lower        : RunZControllerLog.throttle_lower_log,
+        throttle_upper        : RunZControllerLog.throttle_upper_log,
+        pid_rst_filt          : RunZControllerLog.pid_reset_filter,
+        thr_out               : RunZControllerLog.thr_out_log,
+        thr_out_pid           : RunZControllerLog.thr_out_pid,
+        vel_error_z           : RunZControllerLog.vel_error_z,
+        acc_tar_z             : RunZControllerLog.accel_target_z
+    };
+    WriteBlock(&pkt2,sizeof(pkt2));
+#endif
+}
+
 void AP_Logger::WriteQ_ModeAuto_Update(
     uint8_t in_vtol_auto, 
     uint8_t in_vtol_mode, 

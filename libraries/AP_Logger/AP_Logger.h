@@ -25,6 +25,35 @@
 
 #include "LoggerMessageWriter.h"
 
+struct run_z_controller_log{
+    uint8_t timeout_reset;
+    float curr_alt_log;
+    float pos_t_z_log;
+    float leash_up_z_log;
+    float leash_dwn_z_log;
+    float accel_z_cms_log;
+    float vel_target_z_log;
+    float spd_dwn_cms_log;
+    float spd_up_cms_log;
+    uint16_t desvel_ff_z_log;
+    float vel_des_z_log;
+    Vector3f curr_vel_log;
+    uint16_t reset_rate_to_accel_z_log;
+    float vel_last_z_log;
+    uint16_t freeze_ff_z_log;
+    float accel_des_z_log;
+    float accel_ef_z_log;
+    float mtr_thr_hover_log;
+    uint8_t vibe_comp_enabled_log;
+    uint8_t throttle_lower_log;
+    uint8_t throttle_upper_log;
+    float thr_out_pid;
+    float thr_out_log;
+    float vel_error_z;
+    uint8_t pid_reset_filter;
+    float accel_target_z;
+};
+
 class AP_Logger_Backend;
 class AP_AHRS;
 class AP_AHRS_View;
@@ -299,6 +328,8 @@ public:
     void WriteCritical(const char *name, const char *labels, const char *fmt, ...);
     void WriteCritical(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, ...);
     void WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list, bool is_critical=false);
+
+    void Write_LOITER_ZController(run_z_controller_log& RunZControllerLog);
 
     void WriteQ_ModeAuto_Update(uint8_t in_vtol_auto, uint8_t in_vtol_mode, uint8_t auto_state_vtol_mode, uint16_t nav_cmd_id, uint8_t qcontrol_auto_stage);
     void WriteQ_Do_Vtol_Takeoff(int32_t next_lat, int32_t next_lon, int32_t next_alt, int32_t curr_alt, int16_t pilot_acc_z, int16_t pilot_vel_z, float curr_vel_z, uint32_t takeoff_time_limit_ms, uint16_t nav_cmd);
